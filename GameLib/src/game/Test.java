@@ -33,8 +33,8 @@ public class Test extends DrawingPanel {
 		final RectObject ob = new RectObject();
 
 		ob.restitution = 0.5f;
-		ob.min = new Vec2D(50, 400);
-		ob.max = new Vec2D(450, 450);
+		ob.min = new Vec2D(0, 400);
+		ob.max = new Vec2D(500, 450);
 		ob.setMass(GameObject.INFINITE_MASS);
 		ob.velocity = new Vec2D();
 		objects.add(ob);
@@ -45,7 +45,8 @@ public class Test extends DrawingPanel {
 			o.min = new Vec2D(i * 100, 300);
 			o.max = new Vec2D(i * 100 + 20 + 10 * rand.nextInt(5), 360);
 			o.setMass(o.max.minus(o.min).x * o.max.minus(o.min).y / 5);
-			o.velocity = new Vec2D(0, 0);
+			o.velocity = new Vec2D(10, 0);
+			o.dynamicFriction = o.staticFriction = 0.3f;
 			objects.add(o);
 
 			final CircleObject o2 = new CircleObject();
@@ -55,6 +56,7 @@ public class Test extends DrawingPanel {
 			o2.radius = 10 + rand.nextInt(5) * 5;
 			o2.setMass(o2.radius);
 			o2.velocity = new Vec2D(1, 1);
+			o2.dynamicFriction = o2.staticFriction = 0.1f;
 			objects.add(o2);
 		}
 	}

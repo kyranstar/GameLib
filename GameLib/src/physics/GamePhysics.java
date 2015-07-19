@@ -120,7 +120,31 @@ public final class GamePhysics {
 		a.velocity = a.velocity.minus(impulse.multiply(a.getInvMass()));
 		b.velocity = b.velocity.plus(impulse.multiply(b.getInvMass()));
 
+		applyFriction(m, j);
+
 		positionalCorrection(m);
+	}
+
+	public static <A extends GameObject, B extends GameObject> void applyFriction(final CollisionManifold<A, B> m, final float normalForce) {
+		final A a = m.a;
+		final B b = m.b;
+
+		// relative velocity
+		final Vec2D rv = b.velocity.minus(a.velocity);
+		// normalized tangent force
+		final Vec2D tangent = rv.minus(m.normal.multiply(m.normal.dotProduct(rv))).unitVector();
+		// friction magnitude
+		final float jt = -rv.dotProduct(tangent) / (a.getInvMass() + b.getInvMass());
+
+		// friction coefficient
+		final float mu = (a.staticFriction + b.staticFriction) / 2;
+		final float dynamicFriction = (a.dynamicFriction + b.dynamicFriction) / 2;
+
+		// Coulomb's law: force of friction <= force along normal * mu
+		final Vec2D frictionImpulse = Math.abs(jt) < normalForce * mu ? tangent.multiply(jt) : tangent.multiply(-normalForce * dynamicFriction);
+
+		a.velocity = a.velocity.minus(frictionImpulse.multiply(a.getInvMass()));
+		b.velocity = b.velocity.plus(frictionImpulse.multiply(b.getInvMass()));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -8,6 +8,8 @@ public abstract class GameObject {
 	private float invMass;
 	public Vec2D velocity;
 	public float restitution;
+	public float staticFriction;
+	public float dynamicFriction;
 
 	public abstract void update(float dt);
 
