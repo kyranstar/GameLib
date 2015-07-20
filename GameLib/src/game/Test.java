@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -28,35 +27,45 @@ public class Test extends DrawingPanel {
 	private final List<GameObject> objects = new ArrayList<>();
 
 	public Test(final JPanel panel) {
-		super(60, 60, panel, Color.WHITE);
+		super(60, 80, panel, Color.WHITE);
 
-		final RectObject ob = new RectObject();
+		RectObject ob = new RectObject();
 
 		ob.restitution = 0.5f;
 		ob.min = new Vec2D(0, 400);
-		ob.max = new Vec2D(500, 450);
+		ob.max = new Vec2D(500, 500);
 		ob.setMass(GameObject.INFINITE_MASS);
 		ob.velocity = new Vec2D();
 		objects.add(ob);
-		final Random rand = new Random();
+
+		ob = new RectObject();
+
+		ob.restitution = 0.5f;
+		ob.min = new Vec2D(0, 0);
+		ob.max = new Vec2D(500, 10);
+		ob.setMass(GameObject.INFINITE_MASS);
+		ob.velocity = new Vec2D();
+		objects.add(ob);
+
 		for (int i = 0; i < 5; i++) {
 			final RectObject o = new RectObject();
+
 			o.restitution = 0.5f;
-			o.min = new Vec2D(i * 100, 300);
-			o.max = new Vec2D(i * 100 + 20 + 10 * rand.nextInt(5), 360);
-			o.setMass(o.max.minus(o.min).x * o.max.minus(o.min).y / 5);
-			o.velocity = new Vec2D(10, 0);
-			o.dynamicFriction = o.staticFriction = 0.3f;
+			final int x = i * 40 + 50;
+			final int y = i * 40 + 100;
+			o.min = new Vec2D(x, y);
+			o.max = new Vec2D(x + 10 + i * 5, y + 10 + i * 5);
+			o.setMass(o.area());
+			o.velocity = new Vec2D();
 			objects.add(o);
 
 			final CircleObject o2 = new CircleObject();
 
 			o2.restitution = 0.5f;
-			o2.center = new Vec2D(rand.nextInt(5) * 60, 200);
-			o2.radius = 10 + rand.nextInt(5) * 5;
-			o2.setMass(o2.radius);
-			o2.velocity = new Vec2D(1, 1);
-			o2.dynamicFriction = o2.staticFriction = 0.1f;
+			o2.center = new Vec2D(x + 220, i * 40 + 120);
+			o2.radius = i * 2 + 5;
+			o2.setMass(o2.radius * o2.radius);
+			o2.velocity = new Vec2D();
 			objects.add(o2);
 		}
 	}

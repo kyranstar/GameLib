@@ -10,7 +10,7 @@ import game.Vec2D;
  * @param <A>
  * @param <B>
  */
-public class CollisionManifold<A extends GameObject, B extends GameObject> {
+public class CManifold<A extends GameObject, B extends GameObject> {
 	// object A
 	public A a;
 	// object B

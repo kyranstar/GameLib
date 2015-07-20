@@ -12,6 +12,7 @@ import java.util.Queue;
 
 public abstract class GameLoop implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener {
 	private boolean running = true;
+	// the target amount of time between draws in millis
 	private long targetDrawTime;
 	private long targetUpdateTime;
 
@@ -21,6 +22,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	private final Queue<MouseWheelEvent> mouseWheelEvents = new ArrayDeque<>();
 
 	private long runningFPS;
+	private int runningUPS;
 
 	protected GameLoop(final int fps, final int ups) {
 		setTargetFPS(fps);
@@ -37,37 +39,40 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 	public void run() {
 		int currentFPS = 0;
+		int currentUPS = 0;
 		long counterstart = System.nanoTime();
 		long counterelapsed = 0;
 		long lastUpdateTime = System.currentTimeMillis();
+		long lastDrawTime = System.currentTimeMillis();
 
 		while (running) {
-			final long start = System.nanoTime();
-
 			processEvents();
 
 			if (System.currentTimeMillis() > lastUpdateTime + targetUpdateTime) {
 				final float dt = System.currentTimeMillis() - lastUpdateTime;
 				lastUpdateTime = System.currentTimeMillis();
 				update(dt / 1000);
+				currentUPS++;
 			}
-			draw();
+			if (System.currentTimeMillis() > lastDrawTime + targetDrawTime) {
+				draw();
+				currentFPS++;
+				lastDrawTime = System.currentTimeMillis();
+			}
 
-			// Take account for the time it took to draw
-			final long elapsed = System.nanoTime() - start;
-			final long wait = targetDrawTime - elapsed / 1000000;
 			counterelapsed = System.nanoTime() - counterstart;
-			currentFPS++;
 
 			// at the end of every second
 			if (counterelapsed >= 1000000000L) {
 				// runningFPS is how many frames we processed last second
 				runningFPS = currentFPS;
 				currentFPS = 0;
+				runningUPS = currentUPS;
+				currentUPS = 0;
+				System.out.println("FPS: " + runningFPS + " UPS: " + runningUPS);
+
 				counterstart = System.nanoTime();
 			}
-
-			sleepUninterruptibly(wait);
 		}
 	}
 
@@ -80,17 +85,6 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 					keyEvents.clear();
 					mouseWheelEvents.clear();
 				}
-			}
-		}
-	}
-
-	private void sleepUninterruptibly(final long wait) {
-		// don't want to wait for negative time
-		if (wait > 0) {
-			try {
-				Thread.sleep(wait);
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
 			}
 		}
 	}

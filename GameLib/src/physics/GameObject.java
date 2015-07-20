@@ -3,6 +3,9 @@ package physics;
 import game.Vec2D;
 
 public abstract class GameObject {
+	/**
+	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 */
 	public static final float INFINITE_MASS = 0;
 
 	private float invMass;

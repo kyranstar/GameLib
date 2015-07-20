@@ -4,11 +4,26 @@ import game.Vec2D;
 
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Holds methods to perform physics operations on GameObjects.
+ *
+ * @author Kyran Adams
+ *
+ */
 public final class GamePhysics {
 	private GamePhysics() {
 		// cant instantiate this class
 	}
 
+	/**
+	 * Returns whether two GameObjects are colliding
+	 *
+	 * @param a
+	 *            must be a RectObject or CircleObject
+	 * @param b
+	 *            must be a RectObject or CircleObject
+	 * @return
+	 */
 	public static boolean isColliding(final GameObject a, final GameObject b) {
 		if (a instanceof RectObject && b instanceof RectObject) {
 			return isColliding((RectObject) a, (RectObject) b);
@@ -27,12 +42,7 @@ public final class GamePhysics {
 	}
 
 	private static boolean isColliding(final RectObject a, final RectObject b) {
-		final float w = 0.5f * (a.width() + b.width());
-		final float h = 0.5f * (a.height() + b.height());
-		final float dx = a.center().x - b.center().x;
-		final float dy = a.center().y - b.center().y;
-
-		return Math.abs(dx) <= w && Math.abs(dy) <= h;
+		return collisionNormal(a, b) != null;
 	}
 
 	private static boolean isColliding(final CircleObject o1, final CircleObject o2) {
@@ -67,6 +77,13 @@ public final class GamePhysics {
 
 	}
 
+	/**
+	 * Returns the face normal of a collision between a and b
+	 *
+	 * @param a
+	 * @param b
+	 * @return null if no collision
+	 */
 	private static Vec2D collisionNormal(final RectObject a, final RectObject b) {
 		final float w = 0.5f * (a.width() + b.width());
 		final float h = 0.5f * (a.height() + b.height());
@@ -96,11 +113,17 @@ public final class GamePhysics {
 				}
 			}
 		}
-		throw new IllegalArgumentException("Rectangles must be colliding");
+		return null;
 	}
 
+	/**
+	 * Fixes a collision between two objects by correcting their positions and applying impulses.
+	 *
+	 * @param a
+	 * @param b
+	 */
 	public static <A extends GameObject, B extends GameObject> void fixCollision(final A a, final B b) {
-		final CollisionManifold<A, B> m = generateManifold(a, b);
+		final CManifold<A, B> m = generateManifold(a, b);
 
 		// Calculate relative velocity
 		final Vec2D rv = b.velocity.minus(a.velocity);
@@ -125,7 +148,7 @@ public final class GamePhysics {
 		positionalCorrection(m);
 	}
 
-	public static <A extends GameObject, B extends GameObject> void applyFriction(final CollisionManifold<A, B> m, final float normalForce) {
+	private static <A extends GameObject, B extends GameObject> void applyFriction(final CManifold<A, B> m, final float normalMagnitude) {
 		final A a = m.a;
 		final B b = m.b;
 
@@ -141,29 +164,37 @@ public final class GamePhysics {
 		final float dynamicFriction = (a.dynamicFriction + b.dynamicFriction) / 2;
 
 		// Coulomb's law: force of friction <= force along normal * mu
-		final Vec2D frictionImpulse = Math.abs(jt) < normalForce * mu ? tangent.multiply(jt) : tangent.multiply(-normalForce * dynamicFriction);
+		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude * dynamicFriction);
 
+		// apply friction
 		a.velocity = a.velocity.minus(frictionImpulse.multiply(a.getInvMass()));
 		b.velocity = b.velocity.plus(frictionImpulse.multiply(b.getInvMass()));
 	}
 
+	/**
+	 * Generates a collision manifold from two colliding objects.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public static <A extends GameObject, B extends GameObject> CollisionManifold<A, B> generateManifold(final A a, final B b) {
+	private static <A extends GameObject, B extends GameObject> CManifold<A, B> generateManifold(final A a, final B b) {
 		if (a instanceof RectObject && b instanceof RectObject) {
-			return (CollisionManifold<A, B>) generateManifold((RectObject) a, (RectObject) b);
+			return (CManifold<A, B>) generateManifold((RectObject) a, (RectObject) b);
 		} else if (a instanceof CircleObject && b instanceof CircleObject) {
-			return (CollisionManifold<A, B>) generateManifold((CircleObject) a, (CircleObject) b);
+			return (CManifold<A, B>) generateManifold((CircleObject) a, (CircleObject) b);
 		} else if (a instanceof RectObject && b instanceof CircleObject) {
-			return (CollisionManifold<A, B>) generateManifold((RectObject) a, (CircleObject) b);
+			return (CManifold<A, B>) generateManifold((RectObject) a, (CircleObject) b);
 		} else if (a instanceof CircleObject && b instanceof RectObject) {
-			return (CollisionManifold<A, B>) generateManifold((RectObject) b, (CircleObject) a);
+			return (CManifold<A, B>) generateManifold((RectObject) b, (CircleObject) a);
 		} else {
 			throw new UnsupportedOperationException();
 		}
 	}
 
-	private static CollisionManifold<RectObject, RectObject> generateManifold(final RectObject a, final RectObject b) {
-		final CollisionManifold<RectObject, RectObject> m = new CollisionManifold<>();
+	private static CManifold<RectObject, RectObject> generateManifold(final RectObject a, final RectObject b) {
+		final CManifold<RectObject, RectObject> m = new CManifold<>();
 
 		m.a = a;
 		m.b = b;
@@ -176,8 +207,8 @@ public final class GamePhysics {
 		return m;
 	}
 
-	private static CollisionManifold<CircleObject, CircleObject> generateManifold(final CircleObject a, final CircleObject b) {
-		final CollisionManifold<CircleObject, CircleObject> m = new CollisionManifold<>();
+	private static CManifold<CircleObject, CircleObject> generateManifold(final CircleObject a, final CircleObject b) {
+		final CManifold<CircleObject, CircleObject> m = new CManifold<>();
 		m.a = a;
 		m.b = b;
 
@@ -197,8 +228,8 @@ public final class GamePhysics {
 		return m;
 	}
 
-	private static CollisionManifold<RectObject, CircleObject> generateManifold(final RectObject a, final CircleObject b) {
-		final CollisionManifold<RectObject, CircleObject> m = new CollisionManifold<>();
+	private static CManifold<RectObject, CircleObject> generateManifold(final RectObject a, final CircleObject b) {
+		final CManifold<RectObject, CircleObject> m = new CManifold<>();
 
 		m.a = a;
 		m.b = b;
@@ -247,11 +278,18 @@ public final class GamePhysics {
 		return Math.max(lower, Math.min(n, upper));
 	}
 
-	private static <A extends GameObject, B extends GameObject> void positionalCorrection(final CollisionManifold<A, B> m) {
+	/**
+	 * Corrects positions between two colliding objects to avoid "sinking."
+	 *
+	 * @param m
+	 */
+	private static <A extends GameObject, B extends GameObject> void positionalCorrection(final CManifold<A, B> m) {
 		final A a = m.a;
 		final B b = m.b;
 
+		// the amount to currect by
 		final float percent = .8f; // usually .2 to .8
+		// the amount in which we don't really care, this avoids vibrating objects.
 		final float slop = 0.01f; // usually 0.01 to 0.1
 		final Vec2D correction = m.normal.multiply(Math.max(m.penetration - slop, 0.0f) / (a.getInvMass() + b.getInvMass()) * percent);
 		a.moveRelative(correction.multiply(-1 * a.getInvMass()));
