@@ -1,5 +1,6 @@
-package physics;
+package physics.collision;
 
+import physics.GameObject;
 import game.Vec2D;
 
 /**

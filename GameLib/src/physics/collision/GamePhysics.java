@@ -1,8 +1,12 @@
-package physics;
+package physics.collision;
 
 import game.Vec2D;
 
 import java.awt.geom.Rectangle2D;
+
+import physics.CircleObject;
+import physics.GameObject;
+import physics.RectObject;
 
 /**
  * Holds methods to perform physics operations on GameObjects.
@@ -123,6 +127,7 @@ public final class GamePhysics {
 	 * @param b
 	 */
 	public static <A extends GameObject, B extends GameObject> void fixCollision(final A a, final B b) {
+
 		final CManifold<A, B> m = generateManifold(a, b);
 
 		// Calculate relative velocity
@@ -164,7 +169,8 @@ public final class GamePhysics {
 		final float dynamicFriction = (a.dynamicFriction + b.dynamicFriction) / 2;
 
 		// Coulomb's law: force of friction <= force along normal * mu
-		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude * dynamicFriction);
+		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude
+				* dynamicFriction);
 
 		// apply friction
 		a.velocity = a.velocity.minus(frictionImpulse.multiply(a.getInvMass()));
@@ -173,7 +179,7 @@ public final class GamePhysics {
 
 	/**
 	 * Generates a collision manifold from two colliding objects.
-	 * 
+	 *
 	 * @param a
 	 * @param b
 	 * @return

@@ -18,8 +18,8 @@ import javax.swing.SwingUtilities;
 
 import physics.CircleObject;
 import physics.GameObject;
-import physics.GamePhysics;
 import physics.RectObject;
+import physics.collision.GamePhysics;
 import draw.DrawingPanel;
 
 public class Test extends DrawingPanel {
@@ -27,7 +27,7 @@ public class Test extends DrawingPanel {
 	private final List<GameObject> objects = new ArrayList<>();
 
 	public Test(final JPanel panel) {
-		super(60, 80, panel, Color.WHITE);
+		super(60, 120, panel, Color.WHITE);
 
 		RectObject ob = new RectObject();
 
@@ -57,15 +57,19 @@ public class Test extends DrawingPanel {
 			o.max = new Vec2D(x + 10 + i * 5, y + 10 + i * 5);
 			o.setMass(o.area());
 			o.velocity = new Vec2D();
+			o.dynamicFriction = 0.1f;
+			o.staticFriction = 0.4f;
 			objects.add(o);
 
 			final CircleObject o2 = new CircleObject();
 
 			o2.restitution = 0.5f;
-			o2.center = new Vec2D(x + 220, i * 40 + 120);
+			o2.center = new Vec2D(x + 115, i * 40 + 120);
 			o2.radius = i * 2 + 5;
 			o2.setMass(o2.radius * o2.radius);
 			o2.velocity = new Vec2D();
+			o2.dynamicFriction = 0.01f;
+			o2.staticFriction = 0.5f;
 			objects.add(o2);
 		}
 	}
@@ -108,6 +112,9 @@ public class Test extends DrawingPanel {
 				g.drawOval(x, y, radius * 2, radius * 2);
 			}
 		}
+		g.setColor(Color.RED);
+		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
+		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
 	}
 
 	@Override
@@ -117,7 +124,7 @@ public class Test extends DrawingPanel {
 
 	@Override
 	public void update(final float dt) {
-		final Vec2D gravity = new Vec2D(0, 9.8f);
+		final Vec2D gravity = new Vec2D(0, .98f);
 		for (int i = 0; i < objects.size(); i++) {
 			final GameObject a = objects.get(i);
 			if (a.center().y > 700) {

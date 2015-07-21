@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.geom.Point2D;
+
 /**
  * An extension to the relatively impotent java.awt.geom.Point2D.Double, Vector2D allows mathematical manipulation of
  * 2-component vectors.
@@ -9,6 +11,7 @@ package game;
  */
 public class Vec2D {
 
+	public static final Vec2D ZERO = new Vec2D();
 	public final float x;
 	public final float y;
 
@@ -155,5 +158,9 @@ public class Vec2D {
 			return false;
 		}
 		return true;
+	}
+
+	public Point2D toPoint() {
+		return new Point2D.Float(x, y);
 	}
 }

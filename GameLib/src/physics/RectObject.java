@@ -40,7 +40,7 @@ public class RectObject extends GameObject {
 	}
 
 	public float area() {
-		Vec2D area = max.minus(min);
+		final Vec2D area = max.minus(min);
 		return area.x * area.y;
 	}
 }

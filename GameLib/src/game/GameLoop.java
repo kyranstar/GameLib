@@ -13,15 +13,15 @@ import java.util.Queue;
 public abstract class GameLoop implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener {
 	private boolean running = true;
 	// the target amount of time between draws in millis
-	private long targetDrawTime;
-	private long targetUpdateTime;
+	private int targetDrawTime;
+	private float targetDT;
 
 	// ArrayDeque is supposed to be the fastest collection
 	private final Queue<KeyEvent> keyEvents = new ArrayDeque<>();
 	private final Queue<MouseEvent> mouseEvents = new ArrayDeque<>();
 	private final Queue<MouseWheelEvent> mouseWheelEvents = new ArrayDeque<>();
 
-	private long runningFPS;
+	private int runningFPS;
 	private int runningUPS;
 
 	protected GameLoop(final int fps, final int ups) {
@@ -30,7 +30,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	}
 
 	private void setTargetUPS(final int ups) {
-		targetUpdateTime = 1000 / ups;
+		targetDT = 1f / ups;
 	}
 
 	public void setTargetFPS(final int fps) {
@@ -40,27 +40,35 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	public void run() {
 		int currentFPS = 0;
 		int currentUPS = 0;
-		long counterstart = System.nanoTime();
-		long counterelapsed = 0;
-		long lastUpdateTime = System.currentTimeMillis();
-		long lastDrawTime = System.currentTimeMillis();
+		float counterstart = System.nanoTime();
+
+		// the amount of time to update by per update
+		final float dt = targetDT;
+
+		long currentTime = System.currentTimeMillis();
+		// accumulates available time for updating.
+		float accumulator = 0.0f;
 
 		while (running) {
 			processEvents();
 
-			if (System.currentTimeMillis() > lastUpdateTime + targetUpdateTime) {
-				final float dt = System.currentTimeMillis() - lastUpdateTime;
-				lastUpdateTime = System.currentTimeMillis();
-				update(dt / 1000);
-				currentUPS++;
+			final long newTime = System.currentTimeMillis();
+			long frameTime = newTime - currentTime;
+			if (frameTime > 250) {
+				frameTime = 250;
 			}
-			if (System.currentTimeMillis() > lastDrawTime + targetDrawTime) {
-				draw();
-				currentFPS++;
-				lastDrawTime = System.currentTimeMillis();
-			}
+			currentTime = newTime;
 
-			counterelapsed = System.nanoTime() - counterstart;
+			accumulator += frameTime / 1000.;
+			while (accumulator >= dt) {
+				update(dt);
+				currentUPS++;
+				accumulator -= dt;
+			}
+			final long timeBeforeDraw = System.currentTimeMillis();
+			draw();
+			currentFPS++;
+			final float counterelapsed = System.nanoTime() - counterstart;
 
 			// at the end of every second
 			if (counterelapsed >= 1000000000L) {
@@ -69,9 +77,19 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 				currentFPS = 0;
 				runningUPS = currentUPS;
 				currentUPS = 0;
-				System.out.println("FPS: " + runningFPS + " UPS: " + runningUPS);
 
 				counterstart = System.nanoTime();
+			}
+			sleep((int) (targetDrawTime - (System.currentTimeMillis() - timeBeforeDraw)));
+		}
+	}
+
+	private void sleep(final int i) {
+		if (i > 0) {
+			try {
+				Thread.sleep(i);
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -91,6 +109,10 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 	public long getCurrentFPS() {
 		return runningFPS;
+	}
+
+	public long getCurrentUPS() {
+		return runningUPS;
 	}
 
 	public void stop() {
