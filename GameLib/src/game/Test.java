@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import physics.GameEntity;
+import physics.Joint;
 import physics.Material;
 import physics.collision.CircleShape;
 import physics.collision.Collisions;
@@ -28,17 +29,36 @@ public class Test extends DrawingPanel {
 
 	private static JPanel panel;
 	private final List<GameEntity> objects = new ArrayList<>();
+	private final List<Joint> joints = new ArrayList<>();
 
 	public Test(final JPanel panel) {
 		super(60, 120, panel, Color.WHITE);
 
-		final GameEntity ob = new GameEntity();
+		GameEntity ob = new GameEntity();
 
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new RectShape(new Vec2D(0, 750), new Vec2D(760, 800));
 		ob.setMass(GameEntity.INFINITE_MASS);
 		ob.velocity = new Vec2D();
 		objects.add(ob);
+
+		ob = new GameEntity();
+
+		ob.setMaterial(Material.STEEL);
+		ob.shape = new RectShape(new Vec2D(100, 0), new Vec2D(125, 25));
+		ob.setMass(1000);
+		ob.velocity = new Vec2D();
+		objects.add(ob);
+
+		final GameEntity ob2 = new GameEntity();
+
+		ob2.setMaterial(Material.STEEL);
+		ob2.shape = new RectShape(new Vec2D(200, 0), new Vec2D(250, 100));
+		ob2.setMass(10000);
+		ob2.velocity = new Vec2D();
+		objects.add(ob2);
+
+		joints.add(new Joint(ob, ob2, 100));
 
 		for (int i = 0; i < 5; i++) {
 			for (int j = i; j < 5; j++) {
@@ -51,13 +71,13 @@ public class Test extends DrawingPanel {
 				o.velocity = new Vec2D();
 				objects.add(o);
 			}
-			final GameEntity o = new GameEntity();
-			o.setMaterial(Material.STEEL);
-			final int radius = i * 3;
-			o.shape = new CircleShape(new Vec2D(225, i * radius), radius);
-			o.setMass(radius * radius);
-			o.velocity = new Vec2D(41, 1);
-			objects.add(o);
+			// final GameEntity o = new GameEntity();
+			// o.setMaterial(Material.STEEL);
+			// final int radius = i * 3;
+			// o.shape = new CircleShape(new Vec2D(225, i * radius), radius);
+			// o.setMass(radius * radius);
+			// o.velocity = new Vec2D(41, 1);
+			// objects.add(o);
 		}
 	}
 
@@ -107,6 +127,17 @@ public class Test extends DrawingPanel {
 				g.drawOval(x, y, radius * 2, radius * 2);
 			}
 		}
+		for (final Joint j : joints) {
+			g.setColor(Color.RED);
+			final float x1 = j.a.center().x;
+			final float y1 = j.a.center().y;
+			final float x2 = j.b.center().x;
+			final float y2 = j.b.center().y;
+			g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+			final int distance = (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+			g.drawString(distance + "\\" + j.distance, (int) x1, (int) y1 - 30);
+		}
+
 		g.setColor(Color.RED);
 		g.drawString("Entities: " + objects.size(), 10, 15);
 		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
@@ -134,7 +165,6 @@ public class Test extends DrawingPanel {
 
 	@Override
 	public void update(final float dt) {
-		int count = 0;
 		final Vec2D gravity = new Vec2D(0, .98f);
 		for (int i = 0; i < objects.size(); i++) {
 			final GameEntity a = objects.get(i);
@@ -158,7 +188,6 @@ public class Test extends DrawingPanel {
 				if (b.sleeping && a.sleeping) {
 					continue;
 				}
-				count++;
 				if (Collisions.isColliding(a, b)) {
 					Collisions.fixCollision(a, b);
 				}
@@ -167,7 +196,9 @@ public class Test extends DrawingPanel {
 				checkSleep(a);
 			}
 		}
-		System.out.println(count);
+		for (final Joint j : joints) {
+			j.update(dt);
+		}
 	}
 
 	private static void checkSleep(final GameEntity a) {

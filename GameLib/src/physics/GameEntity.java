@@ -16,7 +16,7 @@ public class GameEntity {
 	 * The consecutive amount of frames the object has to be still to be considered sleeping
 	 */
 	public static final int FRAMES_STILL_TO_SLEEP = 15;
-	public static final boolean SLEEPING_ENABLED = false;
+	public static final boolean SLEEPING_ENABLED = true;
 
 	// if the object's velocity was below the sleep threshold for more than one frame
 	public boolean sleeping;

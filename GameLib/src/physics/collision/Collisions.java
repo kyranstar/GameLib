@@ -121,15 +121,19 @@ public final class Collisions {
 		return null;
 	}
 
+	public static void fixCollision(final GameEntity a, final GameEntity b) {
+		fixCollision(generateManifold(a, b));
+	}
+
 	/**
 	 * Fixes a collision between two objects by correcting their positions and applying impulses.
 	 *
 	 * @param a
 	 * @param b
 	 */
-	public static void fixCollision(final GameEntity a, final GameEntity b) {
-
-		final CManifold m = generateManifold(a, b);
+	public static void fixCollision(final CManifold m) {
+		final GameEntity a = m.a;
+		final GameEntity b = m.b;
 
 		// Calculate relative velocity
 		final Vec2D rv = b.velocity.minus(a.velocity);
@@ -286,15 +290,14 @@ public final class Collisions {
 	 *
 	 * @param m
 	 */
-	private static void positionalCorrection(final CManifold m) {
+	public static void positionalCorrection(final CManifold m) {
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
 
 		// the amount to correct by
 		final float percent = 1.0f; // usually .2 to .8
-		// the amount in which we don't really care, this avoids vibrating objects.
-		final float slop = 0.05f; // usually 0.01 to 0.1
-		final Vec2D correction = m.normal.multiply(Math.max(m.penetration - slop, 0.0f) / (a.getInvMass() + b.getInvMass()) * percent);
+
+		final Vec2D correction = m.normal.multiply(m.penetration / (a.getInvMass() + b.getInvMass()) * percent);
 		a.moveRelative(correction.multiply(-1 * a.getInvMass()));
 		b.moveRelative(correction.multiply(b.getInvMass()));
 	}
