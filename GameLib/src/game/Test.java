@@ -16,61 +16,46 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import physics.CircleObject;
-import physics.GameObject;
-import physics.RectObject;
-import physics.collision.GamePhysics;
+import physics.GameEntity;
+import physics.Material;
+import physics.collision.CircleShape;
+import physics.collision.Collisions;
+import physics.collision.RectShape;
 import draw.DrawingPanel;
 
 public class Test extends DrawingPanel {
 
-	private final List<GameObject> objects = new ArrayList<>();
+	private final List<GameEntity> objects = new ArrayList<>();
 
 	public Test(final JPanel panel) {
 		super(60, 120, panel, Color.WHITE);
 
-		RectObject ob = new RectObject();
+		final GameEntity ob = new GameEntity();
 
-		ob.restitution = 0.5f;
-		ob.min = new Vec2D(0, 400);
-		ob.max = new Vec2D(500, 500);
-		ob.setMass(GameObject.INFINITE_MASS);
-		ob.velocity = new Vec2D();
-		objects.add(ob);
-
-		ob = new RectObject();
-
-		ob.restitution = 0.5f;
-		ob.min = new Vec2D(0, 0);
-		ob.max = new Vec2D(500, 10);
-		ob.setMass(GameObject.INFINITE_MASS);
+		ob.setMaterial(Material.STEEL);
+		ob.shape = new RectShape(new Vec2D(0, 450), new Vec2D(500, 500));
+		ob.setMass(GameEntity.INFINITE_MASS);
 		ob.velocity = new Vec2D();
 		objects.add(ob);
 
 		for (int i = 0; i < 5; i++) {
-			final RectObject o = new RectObject();
-
-			o.restitution = 0.5f;
-			final int x = i * 40 + 50;
-			final int y = i * 40 + 100;
-			o.min = new Vec2D(x, y);
-			o.max = new Vec2D(x + 10 + i * 5, y + 10 + i * 5);
-			o.setMass(o.area());
-			o.velocity = new Vec2D();
-			o.dynamicFriction = 0.1f;
-			o.staticFriction = 0.4f;
+			for (int j = i; j < 5; j++) {
+				final GameEntity o = new GameEntity();
+				o.setMaterial(Material.STEEL);
+				final int x = i * 40 - j * 20 + 200;
+				final int y = j * 40 + 100;
+				o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
+				o.setMass(((RectShape) o.shape).area());
+				o.velocity = new Vec2D();
+				objects.add(o);
+			}
+			final GameEntity o = new GameEntity();
+			o.setMaterial(Material.STEEL);
+			final int radius = i * 3;
+			o.shape = new CircleShape(new Vec2D(225, i * radius), radius);
+			o.setMass(radius * radius);
+			o.velocity = new Vec2D(41, 1);
 			objects.add(o);
-
-			final CircleObject o2 = new CircleObject();
-
-			o2.restitution = 0.5f;
-			o2.center = new Vec2D(x + 115, i * 40 + 120);
-			o2.radius = i * 2 + 5;
-			o2.setMass(o2.radius * o2.radius);
-			o2.velocity = new Vec2D();
-			o2.dynamicFriction = 0.01f;
-			o2.staticFriction = 0.5f;
-			objects.add(o2);
 		}
 	}
 
@@ -92,20 +77,20 @@ public class Test extends DrawingPanel {
 
 	@Override
 	public void draw(final Graphics g) {
-		for (final GameObject object : objects) {
-			if (object instanceof RectObject) {
-				final int x = (int) ((RectObject) object).min.x;
-				final int y = (int) ((RectObject) object).min.y;
-				final int width = (int) (((RectObject) object).max.x - ((RectObject) object).min.x);
-				final int height = (int) (((RectObject) object).max.y - ((RectObject) object).min.y);
+		for (final GameEntity object : objects) {
+			if (object.shape instanceof RectShape) {
+				final int x = (int) ((RectShape) object.shape).min.x;
+				final int y = (int) ((RectShape) object.shape).min.y;
+				final int width = (int) (((RectShape) object.shape).max.x - ((RectShape) object.shape).min.x);
+				final int height = (int) (((RectShape) object.shape).max.y - ((RectShape) object.shape).min.y);
 				g.setColor(new Color(50, 100, 200));
 				g.fillRect(x, y, width, height);
 				g.setColor(Color.BLACK);
 				g.drawRect(x, y, width, height);
-			} else if (object instanceof CircleObject) {
-				final int radius = (int) ((CircleObject) object).radius;
-				final int x = (int) ((CircleObject) object).center.x - radius;
-				final int y = (int) ((CircleObject) object).center.y - radius;
+			} else if (object.shape instanceof CircleShape) {
+				final int radius = (int) ((CircleShape) object.shape).radius;
+				final int x = (int) ((CircleShape) object.shape).center.x - radius;
+				final int y = (int) ((CircleShape) object.shape).center.y - radius;
 				g.setColor(new Color(200, 100, 50));
 				g.fillOval(x, y, radius * 2, radius * 2);
 				g.setColor(Color.BLACK);
@@ -126,19 +111,19 @@ public class Test extends DrawingPanel {
 	public void update(final float dt) {
 		final Vec2D gravity = new Vec2D(0, .98f);
 		for (int i = 0; i < objects.size(); i++) {
-			final GameObject a = objects.get(i);
+			final GameEntity a = objects.get(i);
 			if (a.center().y > 700) {
 				objects.remove(i);
 				continue;
 			}
-			if (a.getMass() != GameObject.INFINITE_MASS) {
+			if (a.getMass() != GameEntity.INFINITE_MASS) {
 				a.applyForce(gravity.divide(a.getInvMass()));
 			}
 			a.update(dt);
 			for (int j = i + 1; j < objects.size(); j++) {
-				final GameObject b = objects.get(j);
-				if (GamePhysics.isColliding(a, b)) {
-					GamePhysics.fixCollision(a, b);
+				final GameEntity b = objects.get(j);
+				if (Collisions.isColliding(a, b)) {
+					Collisions.fixCollision(a, b);
 				}
 			}
 		}

@@ -1,14 +1,19 @@
-package physics;
+package physics.collision;
 
 import game.Vec2D;
 
 import java.awt.geom.Rectangle2D;
 
-public class RectObject extends GameObject {
+public class RectShape extends CShape {
 	// upper left
 	public Vec2D min;
 	// bottom right
 	public Vec2D max;
+
+	public RectShape(final Vec2D min, final Vec2D max) {
+		this.min = min;
+		this.max = max;
+	}
 
 	@Override
 	public Vec2D center() {
@@ -17,12 +22,6 @@ public class RectObject extends GameObject {
 
 	public Rectangle2D.Float toRectangle() {
 		return new Rectangle2D.Float(min.x, min.y, width(), height());
-	}
-
-	@Override
-	public void update(final float dt) {
-		min = min.plus(velocity.multiply(dt));
-		max = max.plus(velocity.multiply(dt));
 	}
 
 	public float width() {

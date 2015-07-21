@@ -1,14 +1,14 @@
-package physics;
+package physics.collision;
 
 import game.Vec2D;
 
-public class CircleObject extends GameObject {
+public class CircleShape extends CShape {
 	public Vec2D center;
 	public float radius;
 
-	@Override
-	public void update(final float dt) {
-		center = center.plus(velocity.multiply(dt));
+	public CircleShape(final Vec2D center, final float radius) {
+		this.center = center;
+		this.radius = radius;
 	}
 
 	@Override

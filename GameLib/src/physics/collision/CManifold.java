@@ -1,21 +1,19 @@
 package physics.collision;
 
-import physics.GameObject;
 import game.Vec2D;
+import physics.GameEntity;
 
 /**
  * Holds data about a collision between two GameObjects
- * 
+ *
  * @author Kyran Adams
  *
- * @param <A>
- * @param <B>
  */
-public class CManifold<A extends GameObject, B extends GameObject> {
+public class CManifold {
 	// object A
-	public A a;
+	public GameEntity a;
 	// object B
-	public B b;
+	public GameEntity b;
 	// penetration amount
 	public float penetration;
 	// collision normal
@@ -23,8 +21,8 @@ public class CManifold<A extends GameObject, B extends GameObject> {
 
 	@Override
 	public String toString() {
-		return "CollisionManifold [a=" + a.getClass().getSimpleName() + ", b=" + b.getClass().getSimpleName() + ", penetration=" + penetration
-				+ ", normal=" + normal + "]";
+		return "CollisionManifold [a.shape=" + a.shape.getClass().getSimpleName() + ", b.shape=" + b.getClass().getSimpleName() + ", penetration="
+				+ penetration + ", normal=" + normal + "]";
 	}
 
 }
