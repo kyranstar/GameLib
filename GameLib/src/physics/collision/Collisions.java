@@ -155,7 +155,7 @@ public final class Collisions {
 		if (applyFriction) {
 			applyFriction(m, j);
 		}
-
+		
 		positionalCorrection(m);
 	}
 
@@ -214,7 +214,7 @@ public final class Collisions {
 
 	private static CManifold generateManifold(final RectShape a, final RectShape b, final CManifold m) {
 
-		final Rectangle2D r = a.toRectangle().createIntersection(b.toRectangle());
+		final Rectangle2D r = a.getRect().createIntersection(b.getRect());
 
 		m.normal = collisionNormal(a, b);
 		// penetration is the min resolving distance
@@ -290,14 +290,18 @@ public final class Collisions {
 	 *
 	 * @param m
 	 */
-	public static void positionalCorrection(final CManifold m) {
+	private static void positionalCorrection(final CManifold m) {
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
 
 		// the amount to correct by
-		final float percent = 1.0f; // usually .2 to .8
+		final float percent = 1f; // usually .2 to .8
+		// the amount in which we don't really care, this avoids vibrating objects.
+		final float slop = 0.05f; // usually 0.01 to 0.1
 
-		final Vec2D correction = m.normal.multiply(m.penetration / (a.getInvMass() + b.getInvMass()) * percent);
+		final float correctionMag = m.penetration + (m.penetration > 0 ? -slop : slop);
+
+		final Vec2D correction = m.normal.multiply(correctionMag / (a.getInvMass() + b.getInvMass()) * percent);
 		a.moveRelative(correction.multiply(-1 * a.getInvMass()));
 		b.moveRelative(correction.multiply(b.getInvMass()));
 	}

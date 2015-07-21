@@ -20,7 +20,8 @@ public class RectShape extends CShape {
 		return new Vec2D((max.x + min.x) / 2, (max.y + min.y) / 2);
 	}
 
-	public Rectangle2D.Float toRectangle() {
+	@Override
+	public Rectangle2D getRect() {
 		return new Rectangle2D.Float(min.x, min.y, width(), height());
 	}
 

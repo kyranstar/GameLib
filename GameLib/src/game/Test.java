@@ -23,6 +23,7 @@ import physics.Material;
 import physics.collision.CircleShape;
 import physics.collision.Collisions;
 import physics.collision.RectShape;
+import physics.collision.quadtree.Quadtree;
 import draw.DrawingPanel;
 
 public class Test extends DrawingPanel {
@@ -30,9 +31,11 @@ public class Test extends DrawingPanel {
 	private static JPanel panel;
 	private final List<GameEntity> objects = new ArrayList<>();
 	private final List<Joint> joints = new ArrayList<>();
+	private final Quadtree quadtree;
 
 	public Test(final JPanel panel) {
 		super(60, 120, panel, Color.WHITE);
+		quadtree = new Quadtree(panel.getBounds());
 
 		GameEntity ob = new GameEntity();
 
@@ -50,17 +53,17 @@ public class Test extends DrawingPanel {
 		ob.velocity = new Vec2D();
 		objects.add(ob);
 
-		for (int i = 1; i < 3; i++) {
+		for (int i = 1; i < 10; i++) {
 			final GameEntity ob2 = new GameEntity();
 
 			ob2.setMaterial(Material.STEEL);
-			final int radius = 40 - i * 15;
+			final int radius = 10;
 			ob2.shape = new CircleShape(new Vec2D(100 + i * 25, 100), radius);
 			ob2.setMass(radius * radius);
 			ob2.velocity = new Vec2D(10, 1);
 			objects.add(ob2);
 
-			joints.add(new Joint(ob, ob2, i * 40 + 40));
+			joints.add(new Joint(ob, ob2, 25));
 			ob = ob2;
 		}
 
@@ -162,9 +165,21 @@ public class Test extends DrawingPanel {
 
 	@Override
 	public void update(final float dt) {
+		// create quadtree
+		quadtree.clear();
+		for (int i = 0; i < objects.size(); i++) {
+			quadtree.insert(objects.get(i));
+		}
+
 		final Vec2D gravity = new Vec2D(0, .98f);
+
+		final List<GameEntity> collidableObjects = new ArrayList<>();
 		for (int i = 0; i < objects.size(); i++) {
 			final GameEntity a = objects.get(i);
+
+			// get possible objects to collide with a
+			collidableObjects.clear();
+			quadtree.retrieve(collidableObjects, a);
 
 			if (!a.sleeping) {
 				// remove if out of map
@@ -180,11 +195,11 @@ public class Test extends DrawingPanel {
 				a.update(dt);
 			}
 			// check collisions
-			for (int j = i + 1; j < objects.size(); j++) {
-				final GameEntity b = objects.get(j);
+			for (final GameEntity b : collidableObjects) {
 				if (b.sleeping && a.sleeping) {
 					continue;
 				}
+
 				if (Collisions.isColliding(a, b)) {
 					Collisions.fixCollision(a, b);
 				}
