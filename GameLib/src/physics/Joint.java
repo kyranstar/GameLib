@@ -28,6 +28,6 @@ public class Joint {
 		final int distance = (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 		m.penetration = distance - this.distance;
 
-		Collisions.fixCollision(m);
+		Collisions.fixCollision(m, false);
 	}
 }

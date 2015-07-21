@@ -122,16 +122,14 @@ public final class Collisions {
 	}
 
 	public static void fixCollision(final GameEntity a, final GameEntity b) {
-		fixCollision(generateManifold(a, b));
+		fixCollision(generateManifold(a, b), true);
 	}
 
 	/**
 	 * Fixes a collision between two objects by correcting their positions and applying impulses.
 	 *
-	 * @param a
-	 * @param b
 	 */
-	public static void fixCollision(final CManifold m) {
+	public static void fixCollision(final CManifold m, final boolean applyFriction) {
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
 
@@ -154,7 +152,9 @@ public final class Collisions {
 		a.velocity = a.velocity.minus(impulse.multiply(a.getInvMass()));
 		b.velocity = b.velocity.plus(impulse.multiply(b.getInvMass()));
 
-		applyFriction(m, j);
+		if (applyFriction) {
+			applyFriction(m, j);
+		}
 
 		positionalCorrection(m);
 	}
