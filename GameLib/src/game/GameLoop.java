@@ -18,7 +18,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 	// ArrayDeque is supposed to be the fastest collection
 	private final Queue<KeyEvent> keyEvents = new ArrayDeque<>();
-	private final Queue<MouseEvent> mouseEvents = new ArrayDeque<>();
+	private final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents = new ArrayDeque<>();
 	private final Queue<MouseWheelEvent> mouseWheelEvents = new ArrayDeque<>();
 
 	private int runningFPS;
@@ -119,7 +119,8 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		running = false;
 	}
 
-	public abstract void processInput(Queue<KeyEvent> keyEvents, Queue<MouseEvent> mouseEvent, Queue<MouseWheelEvent> mouseWheelEvents2);
+	public abstract void processInput(Queue<KeyEvent> keyEvents, Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent,
+			Queue<MouseWheelEvent> mouseWheelEvents2);
 
 	public abstract void update(float dt);
 
@@ -128,42 +129,42 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	@Override
 	public void mouseClicked(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.CLICK));
 		}
 	}
 
 	@Override
 	public void mouseEntered(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.ENTER));
 		}
 	}
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.EXIT));
 		}
 	}
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.PRESS));
 		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.RELEASE));
 		}
 	}
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
 		synchronized (mouseEvents) {
-			mouseEvents.add(e);
+			mouseEvents.add(new EventPair<MouseEvent, MouseEventType>(e, MouseEventType.DRAG));
 		}
 	}
 
@@ -199,5 +200,24 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	public void mouseMoved(final MouseEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	protected static class EventPair<A, B> {
+		A event;
+		B type;
+
+		public EventPair(final A e, final B t) {
+			event = e;
+			type = t;
+		}
+	}
+
+	protected static enum MouseEventType {
+		PRESS,
+		CLICK,
+		RELEASE,
+		DRAG,
+		EXIT,
+		ENTER;
 	}
 }

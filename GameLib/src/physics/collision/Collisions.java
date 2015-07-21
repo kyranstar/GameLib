@@ -291,7 +291,7 @@ public final class Collisions {
 		final GameEntity b = m.b;
 
 		// the amount to correct by
-		final float percent = .8f; // usually .2 to .8
+		final float percent = 1.0f; // usually .2 to .8
 		// the amount in which we don't really care, this avoids vibrating objects.
 		final float slop = 0.05f; // usually 0.01 to 0.1
 		final Vec2D correction = m.normal.multiply(Math.max(m.penetration - slop, 0.0f) / (a.getInvMass() + b.getInvMass()) * percent);
