@@ -1,6 +1,11 @@
 package physics;
 
 import game.Vec2D;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+
 import physics.collision.CShape;
 
 public class GameEntity {
@@ -16,7 +21,7 @@ public class GameEntity {
 	 * The consecutive amount of frames the object has to be still to be considered sleeping
 	 */
 	public static final int FRAMES_STILL_TO_SLEEP = 15;
-	public static final boolean SLEEPING_ENABLED = true;
+	public static final boolean SLEEPING_ENABLED = false;
 
 	// if the object's velocity was below the sleep threshold for more than one frame
 	public boolean sleeping;
@@ -30,6 +35,8 @@ public class GameEntity {
 	private float dynamicFriction;
 
 	public CShape shape;
+
+	public Set<GameEntity> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());;
 
 	public void update(final float dt) {
 		moveRelative(velocity.multiply(dt));

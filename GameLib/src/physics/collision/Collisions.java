@@ -55,7 +55,7 @@ public final class Collisions {
 		final float b = o1.center.x - o2.center.x;
 		final float a = o1.center.y - o2.center.y;
 
-		return c * c > b * b + a * a;
+		return c * c >= b * b + a * a;
 	}
 
 	private static boolean isColliding(final RectShape a, final CircleShape b) {
@@ -83,7 +83,7 @@ public final class Collisions {
 	}
 
 	/**
-	 * Returns the face normal of a collision between a and b
+	 * Returns the face normal of a collision between two rectangles
 	 *
 	 * @param a
 	 * @param b
@@ -155,7 +155,7 @@ public final class Collisions {
 		if (applyFriction) {
 			applyFriction(m, j);
 		}
-		
+
 		positionalCorrection(m);
 	}
 
@@ -240,25 +240,26 @@ public final class Collisions {
 	}
 
 	private static CManifold generateManifold(final RectShape a, final CircleShape b, final CManifold m) {
+		assert m.a.shape == a && m.b.shape == b;
+
 		// Vector from A to B
-		final Vec2D n = b.center.minus(a.center());
+		final Vec2D n = b.center().minus(a.center());
 
 		// Closest point on A to center of B
 		Vec2D closest = n;
 
 		// Calculate half extents along each axis
-		final float x_extent = a.width() / 2;
-		final float y_extent = a.height() / 2;
+		final float x_extent = a.width() / 2f;
+		final float y_extent = a.height() / 2f;
 
 		// Clamp point to edges of the AABB
 		closest = new Vec2D(clamp(closest.x, -x_extent, x_extent), clamp(closest.y, -y_extent, y_extent));
 
-		boolean inside = false;
+		final boolean inside = n.equals(closest);
 
 		// Circle is inside the AABB, so we need to clamp the circle's center
 		// to the closest edge
-		if (n.equals(closest)) {
-			inside = true;
+		if (inside) {
 			// Find closest axis
 			if (Math.abs(closest.x) > Math.abs(closest.y)) {
 				// Clamp to closest extent
@@ -270,13 +271,13 @@ public final class Collisions {
 				closest = new Vec2D(closest.x, closest.y > 0 ? y_extent : -y_extent);
 			}
 		}
-		// closest point to center of the circle
+		// vector from closest to the center of the circle
 		final Vec2D normal = n.minus(closest);
 		final float d = normal.length();
 		final float r = b.radius;
 		// Collision normal needs to be flipped to point outside if circle was
 		// inside the AABB
-		m.normal = inside ? normal.unitVector().multiply(-1) : normal.unitVector();
+		m.normal = inside ? normal.divide(d).multiply(-1) : normal.divide(d);
 		m.penetration = r - d;
 		return m;
 	}

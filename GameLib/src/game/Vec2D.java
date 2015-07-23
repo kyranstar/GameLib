@@ -17,7 +17,7 @@ public class Vec2D {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.geom.Point2D.Float#Point2D.Float()
 	 */
 	public Vec2D() {
@@ -26,7 +26,7 @@ public class Vec2D {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.geom.Point2D.Double#Point2D.Double()
 	 */
 	public Vec2D(final float x, final float y) {
