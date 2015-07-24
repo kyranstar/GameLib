@@ -36,7 +36,7 @@ public class Test extends DrawingPanel {
 		super(60, 120, panel, Color.WHITE);
 		quadtree = new Quadtree(panel.getBounds());
 
-		final GameEntity ob = new GameEntity();
+		GameEntity ob = new GameEntity();
 
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new RectShape(new Vec2D(0, 750), new Vec2D(760, 800));
@@ -44,40 +44,40 @@ public class Test extends DrawingPanel {
 		ob.velocity = new Vec2D();
 		objects.add(ob);
 
-		// ob = new GameEntity();
-		//
-		// ob.setMaterial(Material.STEEL);
-		// ob.shape = new CircleShape(new Vec2D(100, 100), 10);
-		// ob.setMass(GameEntity.INFINITE_MASS);
-		// ob.velocity = new Vec2D();
-		// objects.add(ob);
+		ob = new GameEntity();
 
-		// for (int i = 1; i < 10; i++) {
-		// final GameEntity ob2 = new GameEntity();
-		//
-		// ob2.setMaterial(Material.STEEL);
-		// final int radius = 10;
-		// ob2.shape = new CircleShape(new Vec2D(100 + i * 25, 100), radius);
-		// ob2.setMass(radius * radius);
-		// ob2.velocity = new Vec2D(10, 1);
-		// objects.add(ob2);
-		//
-		// joints.add(new Joint(ob, ob2, 25));
-		// ob = ob2;
-		// }
+		ob.setMaterial(Material.STEEL);
+		ob.shape = new CircleShape(new Vec2D(100, 100), 10);
+		ob.setMass(GameEntity.INFINITE_MASS);
+		ob.velocity = new Vec2D();
+		objects.add(ob);
 
-		// for (int i = 0; i < 5; i++) {
-		// for (int j = i; j < 5; j++) {
-		// final GameEntity o = new GameEntity();
-		// o.setMaterial(Material.STEEL);
-		// final int x = i * 40 - j * 20 + 200;
-		// final int y = j * 40 + 100;
-		// o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
-		// o.setMass(((RectShape) o.shape).area());
-		// o.velocity = new Vec2D();
-		// objects.add(o);
-		// }
-		// }
+		for (int i = 1; i < 11; i++) {
+			final GameEntity ob2 = new GameEntity();
+
+			ob2.setMaterial(Material.STEEL);
+			final int radius = 10;
+			ob2.shape = new CircleShape(new Vec2D(100 + i * 25, 100), radius);
+			ob2.setMass(radius * radius);
+			ob2.velocity = new Vec2D(10, 1);
+			objects.add(ob2);
+
+			joints.add(new Joint(ob, ob2, 25));
+			ob = ob2;
+		}
+
+		for (int i = 0; i < 5; i++) {
+			for (int j = i; j < 5; j++) {
+				final GameEntity o = new GameEntity();
+				o.setMaterial(Material.STEEL);
+				final int x = i * 40 - j * 20 + 200;
+				final int y = j * 40 + 100;
+				o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
+				o.setMass(((RectShape) o.shape).area());
+				o.velocity = new Vec2D();
+				objects.add(o);
+			}
+		}
 	}
 
 	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
@@ -134,7 +134,7 @@ public class Test extends DrawingPanel {
 			final float y2 = j.b.center().y;
 			g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
 			final int distance = (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-			g.drawString(distance + "\\" + j.distance, (int) x1, (int) y1 - 30);
+			g.drawString("" + distance / j.distance, (int) x1, (int) y1 - 30);
 		}
 
 		g.setColor(Color.RED);
@@ -171,12 +171,12 @@ public class Test extends DrawingPanel {
 
 		final Vec2D gravity = new Vec2D(0, .98f);
 
+		// possible objects to collide with each object
 		final List<GameEntity> collidableObjects = new ArrayList<>();
 		for (int i = 0; i < objects.size(); i++) {
 			final GameEntity a = objects.get(i);
 			a.checkedCollisionThisTick.clear();
 
-			// get possible objects to collide with a
 			collidableObjects.clear();
 			quadtree.retrieve(collidableObjects, a);
 

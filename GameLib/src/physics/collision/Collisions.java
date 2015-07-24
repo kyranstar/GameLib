@@ -130,20 +130,23 @@ public final class Collisions {
 	 *
 	 */
 	public static void fixCollision(final CManifold m, final boolean applyFriction) {
+		if (m.penetration == 0 || m.normal.equals(Vec2D.ZERO)) {
+			return;
+		}
+
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
-
 		// Calculate relative velocity
 		final Vec2D rv = b.velocity.minus(a.velocity);
 
 		// Calculate relative velocity in terms of the normal direction
-		final float velAlongNormal = rv.dotProduct(m.normal);
+		final float velAlongNormal = Math.abs(rv.dotProduct(m.normal));
 
 		// Calculate restitution
 		final float e = Math.min(a.getRestitution(), b.getRestitution());
 
 		// Calculate impulse scalar
-		float j = -(1 + e) * velAlongNormal;
+		float j = (1 + e) * velAlongNormal;
 		j /= a.getInvMass() + b.getInvMass();
 
 		// Apply impulse

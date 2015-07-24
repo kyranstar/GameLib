@@ -21,8 +21,8 @@ public class CManifold {
 
 	@Override
 	public String toString() {
-		return "CollisionManifold [a.shape=" + a.shape.getClass().getSimpleName() + ", b.shape=" + b.getClass().getSimpleName() + ", penetration="
-				+ penetration + ", normal=" + normal + "]";
+		return "CollisionManifold [a.shape=" + a.shape.getClass().getSimpleName() + ", b.shape=" + b.shape.getClass().getSimpleName()
+				+ ", penetration=" + penetration + ", normal=" + normal + "]";
 	}
 
 }

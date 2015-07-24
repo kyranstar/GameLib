@@ -1,5 +1,6 @@
 package physics;
 
+import game.Vec2D;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
@@ -19,15 +20,14 @@ public class Joint {
 		m.a = a;
 		m.b = b;
 
-		m.normal = a.center().minus(b.center()).unitVector();
+		final Vec2D n = a.center().minus(b.center());
 
-		final float x1 = a.center().x;
-		final float y1 = a.center().y;
-		final float x2 = b.center().x;
-		final float y2 = b.center().y;
-		final int distance = (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-		m.penetration = distance - this.distance;
+		final float d = n.length();
 
+		m.normal = d < distance ? n.divide(d).multiply(-1) : n.divide(d);
+		m.penetration = Math.abs(d - distance);
+
+		System.out.println(m.penetration);
 		Collisions.fixCollision(m, false);
 	}
 }
