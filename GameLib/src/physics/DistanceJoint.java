@@ -4,12 +4,12 @@ import game.Vec2D;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
-public class Joint {
+public class DistanceJoint {
 	public float distance;
 	public float restitution = 0f;
 	public GameEntity a, b;
 
-	public Joint(final GameEntity a, final GameEntity b, final float distance) {
+	public DistanceJoint(final GameEntity a, final GameEntity b, final float distance) {
 		this.a = a;
 		this.b = b;
 		this.distance = distance;

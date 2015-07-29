@@ -8,79 +8,54 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import draw.DrawingPanel;
+import physics.DistanceJoint;
 import physics.GameEntity;
-import physics.Joint;
 import physics.Material;
 import physics.collision.CircleShape;
-import physics.collision.Collisions;
 import physics.collision.RectShape;
-import physics.collision.quadtree.Quadtree;
 
-public class Test extends DrawingPanel {
+public class Test extends World {
 
-	private static final Vec2D GRAVITY = new Vec2D(0, 980f);
-	// the number of times to run collision detection and response per frame
-	private static final int COLLISION_ITERATIONS = 5;
-	private static JPanel panel;
+	public Test(JPanel panel) {
+		super(60, 60, panel);
 
-	private final List<GameEntity> objects = new ArrayList<>();
-	private final List<Joint> joints = new ArrayList<>();
-	private final Quadtree quadtree;
-
-	public Test(final JPanel panel) {
-		super(60, 128, panel, Color.WHITE);
-		quadtree = new Quadtree(panel.getBounds());
-
-		GameEntity ob = new GameEntity();
+		final GameEntity ob = new GameEntity();
 
 		ob.setMaterial(Material.STEEL);
-		ob.shape = new RectShape(new Vec2D(0, 750), new Vec2D(760, 800));
+		ob.shape = new CircleShape(new Vec2D(200, 100), 10);
 		ob.setMass(GameEntity.INFINITE_MASS);
 		objects.add(ob);
-		for (int i = 1; i < 5; i++) {
-			final GameEntity ob2 = new GameEntity();
 
-			ob2.setMaterial(Material.STEEL);
-			final int radius = 10;
-			ob2.shape = new CircleShape(new Vec2D(100 + i * 50, 100), radius);
-			ob2.setMass(GameEntity.INFINITE_MASS);
-			objects.add(ob2);
+		final GameEntity ob2 = new GameEntity();
 
-			ob = new GameEntity();
+		ob2.setMaterial(Material.STEEL);
+		ob2.shape = new CircleShape(new Vec2D(200, 200), 30);
+		ob2.setMass(30 * 30);
 
-			ob2.setMaterial(Material.STEEL);
-			ob.shape = new CircleShape(new Vec2D(100 + i * 50, 200), 25);
-			ob.setMass(radius * radius);
-			objects.add(ob);
+		objects.add(ob2);
 
-			joints.add(new Joint(ob, ob2, 100));
-		}
-		//
-		// for (int i = 0; i < 5; i++) {
-		// for (int j = i; j < 5; j++) {
-		// final GameEntity o = new GameEntity();
-		// o.setMaterial(Material.STEEL);
-		// final int x = i * 40 - j * 20 + 200;
-		// final int y = j * 40 + 100;
-		// o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
-		// o.setMass(((RectShape) o.shape).area());
-		// objects.add(o);
-		// }
-		// }
+		final GameEntity ob3 = new GameEntity();
+
+		ob3.setMaterial(Material.STEEL);
+		ob3.shape = new CircleShape(new Vec2D(200, 260), 20);
+		ob3.setMass(10 * 10);
+		objects.add(ob3);
+
+		joints.add(new DistanceJoint(ob, ob2, 100));
+		joints.add(new DistanceJoint(ob2, ob3, 60));
+
+		ob2.applyForce(new Vec2D(600000, 0));
 	}
 
 	public static void main(final String[] args)
 			throws HeadlessException, InvocationTargetException, InterruptedException {
-		panel = new JPanel();
+		final JPanel panel = new JPanel();
 
 		SwingUtilities.invokeAndWait(() -> {
 			final JFrame frame = new JFrame();
@@ -96,7 +71,25 @@ public class Test extends DrawingPanel {
 	}
 
 	@Override
-	public void draw(final Graphics g) {
+	public void processInput(final Queue<KeyEvent> keyEvents,
+			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
+			final Queue<MouseWheelEvent> mouseWheelEvents2) {
+		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
+			if (e.type != MouseEventType.CLICK) {
+				continue;
+			}
+
+			final GameEntity o = new GameEntity();
+			o.setMaterial(Material.STEEL);
+			final int radius = 30;
+			o.shape = new CircleShape(new Vec2D(e.event.getX(), e.event.getY()), radius);
+			o.setMass(radius * radius);
+			objects.add(o);
+		}
+	}
+
+	@Override
+	public void draw(Graphics g) {
 		for (final GameEntity object : objects) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).min.x;
@@ -125,7 +118,7 @@ public class Test extends DrawingPanel {
 				g.drawOval(x, y, radius * 2, radius * 2);
 			}
 		}
-		for (final Joint j : joints) {
+		for (final DistanceJoint j : joints) {
 			g.setColor(Color.RED);
 			final float x1 = j.a.center().x;
 			final float y1 = j.a.center().y;
@@ -143,99 +136,9 @@ public class Test extends DrawingPanel {
 	}
 
 	@Override
-	public void processInput(final Queue<KeyEvent> keyEvents,
-			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
-			final Queue<MouseWheelEvent> mouseWheelEvents2) {
-		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
-			if (e.type != MouseEventType.CLICK) {
-				continue;
-			}
+	public void updateWorld(float dt) {
+		// TODO Auto-generated method stub
 
-			final GameEntity o = new GameEntity();
-			o.setMaterial(Material.STEEL);
-			final int radius = 30;
-			o.shape = new CircleShape(new Vec2D(e.event.getX(), e.event.getY()), radius);
-			o.setMass(radius * radius);
-			objects.add(o);
-		}
 	}
 
-	@Override
-	public void update(final float dt) {
-		for (int i = 0; i < COLLISION_ITERATIONS; i++) {
-			handleCollisions(dt / COLLISION_ITERATIONS);
-		}
-	}
-
-	private void handleCollisions(final float dt) {
-		final Vec2D gravity = GRAVITY.multiply(dt);
-		// create quadtree
-		quadtree.clear();
-		for (int i = 0; i < objects.size(); i++) {
-			quadtree.insert(objects.get(i));
-		}
-
-		// possible objects to collide with each object
-		final List<GameEntity> collidableObjects = new ArrayList<>();
-		for (int i = 0; i < objects.size(); i++) {
-			final GameEntity a = objects.get(i);
-			a.checkedCollisionThisTick.clear();
-
-			collidableObjects.clear();
-			quadtree.retrieve(collidableObjects, a);
-
-			if (!a.sleeping) {
-				// remove if out of map
-				if (a.center().y > panel.getHeight()) {
-					objects.remove(i);
-					i--;
-					continue;
-				}
-			}
-
-			if (a.getMass() != GameEntity.INFINITE_MASS) {
-				a.applyForce(gravity.divide(a.getInvMass()));
-			}
-			// check collisions
-			for (final GameEntity b : collidableObjects) {
-				if (b.checkedCollisionThisTick.contains(a) || a.checkedCollisionThisTick.contains(b)) {
-					// don't want to check collisions both ways
-					continue;
-				}
-
-				if (b.sleeping && a.sleeping) {
-					continue;
-				}
-
-				if (Collisions.isColliding(a, b)) {
-					Collisions.fixCollision(a, b);
-				}
-				a.checkedCollisionThisTick.add(b);
-				b.checkedCollisionThisTick.add(a);
-			}
-			if (GameEntity.SLEEPING_ENABLED) {
-				checkSleep(a);
-			}
-		}
-		for (final Joint j : joints) {
-			j.update();
-		}
-		for (final GameEntity e : objects) {
-			e.update(dt);
-		}
-	}
-
-	private static void checkSleep(final GameEntity a) {
-		if (a.getVelocity().x < GameEntity.SLEEP_THRESHOLD && a.getVelocity().x > -GameEntity.SLEEP_THRESHOLD //
-				&& a.getVelocity().y < GameEntity.SLEEP_THRESHOLD && a.getVelocity().y > -GameEntity.SLEEP_THRESHOLD) {
-			if (a.framesStill > GameEntity.FRAMES_STILL_TO_SLEEP) {
-				a.sleeping = true;
-			} else {
-				a.framesStill++;
-			}
-		} else {
-			a.sleeping = false;
-			a.framesStill = 0;
-		}
-	}
 }

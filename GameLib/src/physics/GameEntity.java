@@ -16,13 +16,14 @@ public class GameEntity {
 	/**
 	 * The velocity the object has to be below to be considered still
 	 */
-	public static final float SLEEP_THRESHOLD = 1f;
+	public static final float SLEEP_THRESHOLD = 2f;
 	/**
 	 * The consecutive amount of frames the object has to be still to be
 	 * considered sleeping
 	 */
 	public static final int FRAMES_STILL_TO_SLEEP = 15;
-	public static final boolean SLEEPING_ENABLED = false;
+	public static final boolean SLEEPING_ENABLED = true;
+	private static final float AIR_FRICTION = 25;
 
 	// if the object's velocity was below the sleep threshold for more than
 	// FRAMES_STILL_TO_SLEEP
@@ -41,10 +42,11 @@ public class GameEntity {
 	public CShape shape;
 
 	public Set<GameEntity> checkedCollisionThisTick = Collections
-			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());;
+			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());
 
 	public void update(final float dt) {
-		moveRelative(velocity.multiply(dt));
+		moveRelative(getVelocity().multiply(dt));
+		applyForce(velocity.multiply(-AIR_FRICTION * dt));
 	}
 
 	public float getMass() {
@@ -67,7 +69,7 @@ public class GameEntity {
 	}
 
 	public void applyForce(final Vec2D force) {
-		velocity = velocity.plus(force.multiply(invMass));
+		setVelocity(getVelocity().plus(force.multiply(invMass)));
 	}
 
 	public Vec2D center() {
@@ -98,5 +100,9 @@ public class GameEntity {
 
 	public Vec2D getVelocity() {
 		return velocity;
+	}
+
+	public void setVelocity(Vec2D velocity) {
+		this.velocity = velocity;
 	}
 }

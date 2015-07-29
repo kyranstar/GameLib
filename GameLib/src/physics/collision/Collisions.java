@@ -151,7 +151,7 @@ public final class Collisions {
 		final float percent = .4f; // usually .2 to .8
 		// the amount in which we don't really care, this avoids vibrating
 		// objects.
-		final float slop = 0.05f; // usually 0.01 to 0.1
+		final float slop = 0.1f; // usually 0.01 to 0.1
 
 		final float correctionMag = m.penetration > 0 ? Math.max(m.penetration - slop, 0)
 				: Math.min(m.penetration + slop, 0);
