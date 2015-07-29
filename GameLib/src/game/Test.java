@@ -27,7 +27,7 @@ import physics.collision.quadtree.Quadtree;
 
 public class Test extends DrawingPanel {
 
-	private static final Vec2D GRAVITY = new Vec2D(0, 9.8f);
+	private static final Vec2D GRAVITY = new Vec2D(0, 980f);
 	// the number of times to run collision detection and response per frame
 	private static final int COLLISION_ITERATIONS = 5;
 	private static JPanel panel;
@@ -37,7 +37,7 @@ public class Test extends DrawingPanel {
 	private final Quadtree quadtree;
 
 	public Test(final JPanel panel) {
-		super(60, 120, panel, Color.WHITE);
+		super(60, 128, panel, Color.WHITE);
 		quadtree = new Quadtree(panel.getBounds());
 
 		GameEntity ob = new GameEntity();
@@ -46,38 +46,36 @@ public class Test extends DrawingPanel {
 		ob.shape = new RectShape(new Vec2D(0, 750), new Vec2D(760, 800));
 		ob.setMass(GameEntity.INFINITE_MASS);
 		objects.add(ob);
-
-		ob = new GameEntity();
-
-		ob.setMaterial(Material.STEEL);
-		ob.shape = new CircleShape(new Vec2D(100, 100), 10);
-		ob.setMass(GameEntity.INFINITE_MASS);
-		objects.add(ob);
-
-		for (int i = 1; i < 11; i++) {
+		for (int i = 1; i < 5; i++) {
 			final GameEntity ob2 = new GameEntity();
 
 			ob2.setMaterial(Material.STEEL);
 			final int radius = 10;
-			ob2.shape = new CircleShape(new Vec2D(100 + i * 25, 100), radius);
-			ob2.setMass(radius * radius);
+			ob2.shape = new CircleShape(new Vec2D(100 + i * 50, 100), radius);
+			ob2.setMass(GameEntity.INFINITE_MASS);
 			objects.add(ob2);
 
-			joints.add(new Joint(ob, ob2, 25));
-			ob = ob2;
-		}
+			ob = new GameEntity();
 
-		for (int i = 0; i < 5; i++) {
-			for (int j = i; j < 5; j++) {
-				final GameEntity o = new GameEntity();
-				o.setMaterial(Material.STEEL);
-				final int x = i * 40 - j * 20 + 200;
-				final int y = j * 40 + 100;
-				o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
-				o.setMass(((RectShape) o.shape).area());
-				objects.add(o);
-			}
+			ob2.setMaterial(Material.STEEL);
+			ob.shape = new CircleShape(new Vec2D(100 + i * 50, 200), 25);
+			ob.setMass(radius * radius);
+			objects.add(ob);
+
+			joints.add(new Joint(ob, ob2, 100));
 		}
+		//
+		// for (int i = 0; i < 5; i++) {
+		// for (int j = i; j < 5; j++) {
+		// final GameEntity o = new GameEntity();
+		// o.setMaterial(Material.STEEL);
+		// final int x = i * 40 - j * 20 + 200;
+		// final int y = j * 40 + 100;
+		// o.shape = new RectShape(new Vec2D(x, y), new Vec2D(x + 40, y + 40));
+		// o.setMass(((RectShape) o.shape).area());
+		// objects.add(o);
+		// }
+		// }
 	}
 
 	public static void main(final String[] args)
@@ -164,19 +162,13 @@ public class Test extends DrawingPanel {
 
 	@Override
 	public void update(final float dt) {
-		for (final GameEntity e : objects) {
-			// apply gravity
-			if (e.getMass() != GameEntity.INFINITE_MASS) {
-				e.applyForce(GRAVITY.divide(e.getInvMass()));
-			}
-		}
-
 		for (int i = 0; i < COLLISION_ITERATIONS; i++) {
-			handleCollisions(dt);
+			handleCollisions(dt / COLLISION_ITERATIONS);
 		}
 	}
 
 	private void handleCollisions(final float dt) {
+		final Vec2D gravity = GRAVITY.multiply(dt);
 		// create quadtree
 		quadtree.clear();
 		for (int i = 0; i < objects.size(); i++) {
@@ -200,6 +192,10 @@ public class Test extends DrawingPanel {
 					continue;
 				}
 			}
+
+			if (a.getMass() != GameEntity.INFINITE_MASS) {
+				a.applyForce(gravity.divide(a.getInvMass()));
+			}
 			// check collisions
 			for (final GameEntity b : collidableObjects) {
 				if (b.checkedCollisionThisTick.contains(a) || a.checkedCollisionThisTick.contains(b)) {
@@ -222,10 +218,10 @@ public class Test extends DrawingPanel {
 			}
 		}
 		for (final Joint j : joints) {
-			j.update(dt);
+			j.update();
 		}
 		for (final GameEntity e : objects) {
-			e.update(dt / COLLISION_ITERATIONS);
+			e.update(dt);
 		}
 	}
 

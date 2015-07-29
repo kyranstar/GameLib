@@ -44,7 +44,7 @@ public class GameEntity {
 			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());;
 
 	public void update(final float dt) {
-		moveRelative(getVelocity().multiply(dt));
+		moveRelative(velocity.multiply(dt));
 	}
 
 	public float getMass() {

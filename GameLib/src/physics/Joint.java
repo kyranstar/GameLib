@@ -15,7 +15,7 @@ public class Joint {
 		this.distance = distance;
 	}
 
-	public void update(final float dt) {
+	public void update() {
 		final CManifold m = new CManifold();
 		m.a = a;
 		m.b = b;
