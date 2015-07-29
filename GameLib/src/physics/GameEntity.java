@@ -1,16 +1,16 @@
 package physics;
 
-import game.Vec2D;
-
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import game.Vec2D;
 import physics.collision.CShape;
 
 public class GameEntity {
 	/**
-	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 * A constant representing infinite mass. If
+	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
 	/**
@@ -18,28 +18,33 @@ public class GameEntity {
 	 */
 	public static final float SLEEP_THRESHOLD = 1f;
 	/**
-	 * The consecutive amount of frames the object has to be still to be considered sleeping
+	 * The consecutive amount of frames the object has to be still to be
+	 * considered sleeping
 	 */
 	public static final int FRAMES_STILL_TO_SLEEP = 15;
 	public static final boolean SLEEPING_ENABLED = false;
 
-	// if the object's velocity was below the sleep threshold for more than one frame
+	// if the object's velocity was below the sleep threshold for more than
+	// FRAMES_STILL_TO_SLEEP
+	// frames
 	public boolean sleeping;
-	// holds the number of frames this object has been still (below the sleep threshold)
+	// holds the number of frames this object has been still (below the sleep
+	// threshold)
 	public int framesStill;
 
 	private float invMass;
-	public Vec2D velocity;
+	private Vec2D velocity = new Vec2D();
 	private float restitution;
 	private float staticFriction;
 	private float dynamicFriction;
 
 	public CShape shape;
 
-	public Set<GameEntity> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());;
+	public Set<GameEntity> checkedCollisionThisTick = Collections
+			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());;
 
 	public void update(final float dt) {
-		moveRelative(velocity.multiply(dt));
+		moveRelative(getVelocity().multiply(dt));
 	}
 
 	public float getMass() {
@@ -89,5 +94,9 @@ public class GameEntity {
 
 	public float getStaticFriction() {
 		return staticFriction;
+	}
+
+	public Vec2D getVelocity() {
+		return velocity;
 	}
 }

@@ -27,7 +27,6 @@ public class Joint {
 		m.normal = d < distance ? n.divide(d).multiply(-1) : n.divide(d);
 		m.penetration = Math.abs(d - distance);
 
-		System.out.println(m.penetration);
 		Collisions.fixCollision(m, false);
 	}
 }

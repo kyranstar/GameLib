@@ -1,9 +1,8 @@
 package physics.collision;
 
-import game.Vec2D;
-
 import java.awt.geom.Rectangle2D;
 
+import game.Vec2D;
 import physics.GameEntity;
 
 /**
@@ -76,7 +75,8 @@ public final class Collisions {
 			return true;
 		}
 
-		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2) + (int) Math.pow(circleDistance_y - a.height() / 2, 2);
+		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2)
+				+ (int) Math.pow(circleDistance_y - a.height() / 2, 2);
 
 		return cornerDistance_sq <= (int) Math.pow(b.radius, 2);
 
@@ -126,7 +126,8 @@ public final class Collisions {
 	}
 
 	/**
-	 * Fixes a collision between two objects by correcting their positions and applying impulses.
+	 * Fixes a collision between two objects by correcting their positions and
+	 * applying impulses.
 	 *
 	 */
 	public static void fixCollision(final CManifold m, final boolean applyFriction) {
@@ -137,7 +138,7 @@ public final class Collisions {
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
 		// Calculate relative velocity
-		final Vec2D rv = b.velocity.minus(a.velocity);
+		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 
 		// Calculate relative velocity in terms of the normal direction
 		final float velAlongNormal = Math.abs(rv.dotProduct(m.normal));
@@ -152,8 +153,8 @@ public final class Collisions {
 		// Apply impulse
 		final Vec2D impulse = m.normal.multiply(j);
 
-		a.velocity = a.velocity.minus(impulse.multiply(a.getInvMass()));
-		b.velocity = b.velocity.plus(impulse.multiply(b.getInvMass()));
+		a.applyForce(impulse.multiply(-1));
+		b.applyForce(impulse);
 
 		if (applyFriction) {
 			applyFriction(m, j);
@@ -167,7 +168,7 @@ public final class Collisions {
 		final GameEntity b = m.b;
 
 		// relative velocity
-		final Vec2D rv = b.velocity.minus(a.velocity);
+		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 		// normalized tangent force
 		final Vec2D tangent = rv.minus(m.normal.multiply(m.normal.dotProduct(rv))).unitVector();
 		// friction magnitude
@@ -178,12 +179,12 @@ public final class Collisions {
 		final float dynamicFriction = (a.getDynamicFriction() + b.getDynamicFriction()) / 2;
 
 		// Coulomb's law: force of friction <= force along normal * mu
-		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude
-				* dynamicFriction);
+		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt)
+				: tangent.multiply(-normalMagnitude * dynamicFriction);
 
 		// apply friction
-		a.velocity = a.velocity.minus(frictionImpulse.multiply(a.getInvMass()));
-		b.velocity = b.velocity.plus(frictionImpulse.multiply(b.getInvMass()));
+		a.applyForce(frictionImpulse.multiply(-1));
+		b.applyForce(frictionImpulse);
 	}
 
 	/**
@@ -231,7 +232,8 @@ public final class Collisions {
 		final float dist = n.length();
 
 		if (dist == 0) {
-			// circles are on the same position, choose random but consistent values
+			// circles are on the same position, choose random but consistent
+			// values
 			m.normal = new Vec2D(0, 1);
 			m.penetration = Math.min(a.radius, b.radius);
 			return m;
@@ -299,9 +301,10 @@ public final class Collisions {
 		final GameEntity b = m.b;
 
 		// the amount to correct by
-		final float percent = 1f; // usually .2 to .8
-		// the amount in which we don't really care, this avoids vibrating objects.
-		final float slop = 0.05f; // usually 0.01 to 0.1
+		final float percent = .8f; // usually .2 to .8
+		// the amount in which we don't really care, this avoids vibrating
+		// objects.
+		final float slop = 0.0f; // usually 0.01 to 0.1
 
 		final float correctionMag = m.penetration + (m.penetration > 0 ? -slop : slop);
 
