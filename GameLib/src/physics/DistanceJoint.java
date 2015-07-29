@@ -4,23 +4,21 @@ import game.Vec2D;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
-public class DistanceJoint {
+public class DistanceJoint extends Joint {
 	public float distance;
-	public float restitution = 0f;
-	public GameEntity a, b;
 
 	public DistanceJoint(final GameEntity a, final GameEntity b, final float distance) {
-		this.a = a;
-		this.b = b;
+		super(a, b);
 		this.distance = distance;
 	}
 
+	@Override
 	public void update() {
 		final CManifold m = new CManifold();
-		m.a = a;
-		m.b = b;
+		m.a = getA();
+		m.b = getB();
 
-		final Vec2D n = a.center().minus(b.center());
+		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
 

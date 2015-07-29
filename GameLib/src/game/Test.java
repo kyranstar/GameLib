@@ -16,7 +16,9 @@ import javax.swing.SwingUtilities;
 
 import physics.DistanceJoint;
 import physics.GameEntity;
+import physics.Joint;
 import physics.Material;
+import physics.SpringJoint;
 import physics.collision.CircleShape;
 import physics.collision.RectShape;
 
@@ -47,10 +49,10 @@ public class Test extends World {
 		ob3.setMass(10 * 10);
 		objects.add(ob3);
 
-		joints.add(new DistanceJoint(ob, ob2, 100));
+		joints.add(new SpringJoint(ob, ob2, 100, 0.001f));
 		joints.add(new DistanceJoint(ob2, ob3, 60));
 
-		ob2.applyForce(new Vec2D(600000, 0));
+		// ob2.applyForce(new Vec2D(600000, 0));
 	}
 
 	public static void main(final String[] args)
@@ -118,15 +120,13 @@ public class Test extends World {
 				g.drawOval(x, y, radius * 2, radius * 2);
 			}
 		}
-		for (final DistanceJoint j : joints) {
+		for (final Joint j : joints) {
 			g.setColor(Color.RED);
-			final float x1 = j.a.center().x;
-			final float y1 = j.a.center().y;
-			final float x2 = j.b.center().x;
-			final float y2 = j.b.center().y;
+			final float x1 = j.getA().center().x;
+			final float y1 = j.getA().center().y;
+			final float x2 = j.getB().center().x;
+			final float y2 = j.getB().center().y;
 			g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
-			final int distance = (int) Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-			g.drawString("" + distance / j.distance, (int) x1, (int) y1 - 30);
 		}
 
 		g.setColor(Color.RED);

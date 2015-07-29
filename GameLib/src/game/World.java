@@ -8,8 +8,8 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import draw.DrawingPanel;
-import physics.DistanceJoint;
 import physics.GameEntity;
+import physics.Joint;
 import physics.collision.Collisions;
 import physics.collision.quadtree.Quadtree;
 
@@ -21,7 +21,7 @@ public abstract class World extends DrawingPanel {
 	private final Rectangle bounds;
 
 	protected final List<GameEntity> objects = new ArrayList<>();
-	protected final List<DistanceJoint> joints = new ArrayList<>();
+	protected final List<Joint> joints = new ArrayList<>();
 	private final Quadtree quadtree;
 
 	public World(int fps, int ups, JPanel panel) {
@@ -93,7 +93,7 @@ public abstract class World extends DrawingPanel {
 				b.checkedCollisionThisTick.add(a);
 			}
 		}
-		for (final DistanceJoint j : joints) {
+		for (final Joint j : joints) {
 			j.update();
 		}
 		for (final GameEntity e : objects) {
