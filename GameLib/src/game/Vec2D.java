@@ -3,8 +3,8 @@ package game;
 import java.awt.geom.Point2D;
 
 /**
- * An extension to the relatively impotent java.awt.geom.Point2D.Double, Vector2D allows mathematical manipulation of
- * 2-component vectors.
+ * An extension to the relatively impotent java.awt.geom.Point2D.Double,
+ * Vector2D allows mathematical manipulation of 2-component vectors.
  *
  * @author Jadrian Miles
  * @version 20031122
@@ -18,32 +18,35 @@ public class Vec2D {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see java.awt.geom.Point2D.Float#Point2D.Float()
+	 * @see java.awt.geom.Point2D.Double#Point2D.Double()
 	 */
-	public Vec2D() {
-		x = y = 0;
+	public Vec2D(final float x, final float y) {
+		assert!Double.isNaN(x) && !Double.isNaN(y);
+		assert Double.isFinite(x) && Double.isFinite(y);
+
+		this.x = x;
+		this.y = y;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see java.awt.geom.Point2D.Double#Point2D.Double()
+	 * @see java.awt.geom.Point2D.Float#Point2D.Float()
 	 */
-	public Vec2D(final float x, final float y) {
-		this.x = x;
-		this.y = y;
+	public Vec2D() {
+		this(0, 0);
 	}
 
 	/**
 	 * Copy constructor
 	 */
 	public Vec2D(final Vec2D v) {
-		x = v.x;
-		y = v.y;
+		this(v.x, v.y);
 	}
 
 	/**
-	 * @return the angle (argument) of the vector in polar coordinates in the range [-pi/2, pi/2]
+	 * @return the angle (argument) of the vector in polar coordinates in the
+	 *         range [-pi/2, pi/2]
 	 */
 	public float getTheta() {
 		return (float) Math.atan2(y, x);
@@ -75,8 +78,9 @@ public class Vec2D {
 	}
 
 	/**
-	 * Since Vector2D works only in the x-y plane, (u x v) points directly along the z axis. This function returns the
-	 * value on the z axis that (u x v) reaches.
+	 * Since Vector2D works only in the x-y plane, (u x v) points directly along
+	 * the z axis. This function returns the value on the z axis that (u x v)
+	 * reaches.
 	 *
 	 * @return signed magnitude of (this x rhs)
 	 */
@@ -113,8 +117,9 @@ public class Vec2D {
 	}
 
 	/**
-	 * Returns a new vector with the same direction as the vector but with length 1, except in the case of zero vectors,
-	 * which return a copy of themselves.
+	 * Returns a new vector with the same direction as the vector but with
+	 * length 1, except in the case of zero vectors, which return a copy of
+	 * themselves.
 	 */
 	public Vec2D unitVector() {
 		final float length = length();
@@ -124,7 +129,9 @@ public class Vec2D {
 		return new Vec2D(0, 0);
 	}
 
-	/** @return Standard string representation of a vector: "<x, y>" */
+	/**
+	 * @return Standard string representation of a vector: "<x, y>"
+	 */
 	@Override
 	public String toString() {
 		return "<" + x + ", " + y + ">";

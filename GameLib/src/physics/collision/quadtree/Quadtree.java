@@ -9,7 +9,7 @@ import physics.GameEntity;
 
 public class Quadtree {
 	private final int MAX_OBJECTS = 10;
-	private final int MAX_LEVELS = 5;
+	private final int MAX_LEVELS = 10;
 
 	private final int level;
 	private final List<GameEntity> objects;

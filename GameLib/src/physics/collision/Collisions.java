@@ -56,6 +56,10 @@ public final class Collisions {
 		if (m.penetration == 0 || m.normal.equals(Vec2D.ZERO)) {
 			return;
 		}
+		// assert normal is normalized
+		assert Math.abs(m.normal.length() - 1) <= 0.01f;
+		assert Float.isFinite(m.penetration);
+		assert!Float.isNaN(m.penetration);
 
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;

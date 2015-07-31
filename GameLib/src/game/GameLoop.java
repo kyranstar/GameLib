@@ -11,6 +11,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 public abstract class GameLoop implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener {
+	private final boolean capFPS;
 	private boolean running = true;
 	// the target amount of time between draws in millis
 	private int targetDrawTime;
@@ -27,6 +28,13 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	protected GameLoop(final int fps, final int ups) {
 		setTargetFPS(fps);
 		setTargetUPS(ups);
+		capFPS = true;
+	}
+
+	protected GameLoop(final int ups) {
+		setTargetFPS(-1);
+		setTargetUPS(ups);
+		capFPS = false;
 	}
 
 	private void setTargetUPS(final int ups) {
@@ -80,7 +88,9 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 				counterstart = System.nanoTime();
 			}
-			sleep((int) (targetDrawTime - (System.currentTimeMillis() - timeBeforeDraw)));
+			if (capFPS) {
+				sleep((int) (targetDrawTime - (System.currentTimeMillis() - timeBeforeDraw)));
+			}
 		}
 	}
 
@@ -119,8 +129,8 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		running = false;
 	}
 
-	public abstract void processInput(Queue<KeyEvent> keyEvents, Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent,
-			Queue<MouseWheelEvent> mouseWheelEvents2);
+	public abstract void processInput(Queue<KeyEvent> keyEvents,
+			Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent, Queue<MouseWheelEvent> mouseWheelEvents2);
 
 	public abstract void update(float dt);
 
@@ -213,11 +223,6 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	}
 
 	protected static enum MouseEventType {
-		PRESS,
-		CLICK,
-		RELEASE,
-		DRAG,
-		EXIT,
-		ENTER;
+		PRESS, CLICK, RELEASE, DRAG, EXIT, ENTER;
 	}
 }

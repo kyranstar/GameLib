@@ -1,6 +1,7 @@
-package physics;
+package physics.constraints;
 
 import game.Vec2D;
+import physics.GameEntity;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
@@ -12,8 +13,14 @@ public class DistanceJoint extends Joint {
 		this.distance = distance;
 	}
 
+	public DistanceJoint(final GameEntity a, final GameEntity b) {
+		this(a, b, a.center().minus(b.center()).length());
+	}
+
 	@Override
 	public void update() {
+		assert getA() != null && getB() != null;
+
 		final CManifold m = new CManifold();
 		m.a = getA();
 		m.b = getB();

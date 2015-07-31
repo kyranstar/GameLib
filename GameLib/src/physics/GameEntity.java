@@ -5,6 +5,7 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 
 import game.Vec2D;
+import game.World;
 import physics.collision.CShape;
 
 public class GameEntity {
@@ -13,17 +14,6 @@ public class GameEntity {
 	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
-	/**
-	 * The velocity the object has to be below to be considered still
-	 */
-	public static final float SLEEP_THRESHOLD = 2f;
-	/**
-	 * The consecutive amount of frames the object has to be still to be
-	 * considered sleeping
-	 */
-	public static final int FRAMES_STILL_TO_SLEEP = 15;
-	public static final boolean SLEEPING_ENABLED = true;
-	private static final float AIR_FRICTION = 25;
 
 	// if the object's velocity was below the sleep threshold for more than
 	// FRAMES_STILL_TO_SLEEP
@@ -43,10 +33,15 @@ public class GameEntity {
 
 	public Set<GameEntity> checkedCollisionThisTick = Collections
 			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());
+	private final World world;
+
+	public GameEntity(World world) {
+		this.world = world;
+	}
 
 	public void update(final float dt) {
 		moveRelative(getVelocity().multiply(dt));
-		applyForce(velocity.multiply(-AIR_FRICTION * dt));
+		applyForce(velocity.multiply(-world.AIR_FRICTION * dt));
 	}
 
 	public float getMass() {

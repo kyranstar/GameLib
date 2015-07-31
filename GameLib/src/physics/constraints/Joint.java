@@ -1,16 +1,16 @@
-package physics;
+package physics.constraints;
 
-public abstract class Joint {
+import physics.GameEntity;
 
-	private final GameEntity a;
-	private final GameEntity b;
+public abstract class Joint extends Constraint {
+
+	protected final GameEntity a;
+	protected final GameEntity b;
 
 	public Joint(GameEntity a, GameEntity b) {
 		this.a = a;
 		this.b = b;
 	}
-
-	public abstract void update();
 
 	public GameEntity getA() {
 		return a;

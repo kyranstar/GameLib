@@ -14,45 +14,66 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import physics.DistanceJoint;
 import physics.GameEntity;
-import physics.Joint;
 import physics.Material;
-import physics.SpringJoint;
 import physics.collision.CircleShape;
 import physics.collision.RectShape;
+import physics.constraints.Constraint;
+import physics.constraints.DistanceJoint;
+import physics.constraints.Joint;
 
 public class Test extends World {
 
-	public Test(JPanel panel) {
-		super(60, 60, panel);
+	GameEntity center;
 
-		final GameEntity ob = new GameEntity();
+	public Test(JPanel panel) {
+		super(60, panel);
+
+		final GameEntity ob = new GameEntity(this);
+		ob.setMaterial(Material.STEEL);
+		ob.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
+		ob.setMass(GameEntity.INFINITE_MASS);
+		entities.add(ob);
+
+		final Vec2D centerV = new Vec2D(500, 700);
+
+		center = createBall(centerV, 75);
+		center.setMass(GameEntity.INFINITE_MASS);
+		entities.add(center);
+
+		final float vertices = 12;
+		final float dist = 120;
+		final float elasticity = 0.001f;
+
+		GameEntity first = null;
+		GameEntity last = null;
+		for (int i = 0; i < vertices; i++) {
+			final float angle = (float) (2 * Math.PI / vertices * i);
+			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist),
+					(float) (centerV.y + Math.sin(angle) * dist));
+			final GameEntity vertex = createBall(newCenter, 10);
+			entities.add(vertex);
+			if (last != null) {
+				constraints.add(new DistanceJoint(last, vertex));
+			} else {
+				first = vertex;
+			}
+			constraints.add(new DistanceJoint(center, vertex));
+			last = vertex;
+			if (i == vertices - 1 && first != null) {
+				constraints.add(new DistanceJoint(first, vertex));
+			}
+		}
+
+	}
+
+	private GameEntity createBall(Vec2D center, int radius) {
+		final GameEntity ob = new GameEntity(this);
 
 		ob.setMaterial(Material.STEEL);
-		ob.shape = new CircleShape(new Vec2D(200, 100), 10);
-		ob.setMass(GameEntity.INFINITE_MASS);
-		objects.add(ob);
-
-		final GameEntity ob2 = new GameEntity();
-
-		ob2.setMaterial(Material.STEEL);
-		ob2.shape = new CircleShape(new Vec2D(200, 200), 30);
-		ob2.setMass(30 * 30);
-
-		objects.add(ob2);
-
-		final GameEntity ob3 = new GameEntity();
-
-		ob3.setMaterial(Material.STEEL);
-		ob3.shape = new CircleShape(new Vec2D(200, 260), 20);
-		ob3.setMass(10 * 10);
-		objects.add(ob3);
-
-		joints.add(new SpringJoint(ob, ob2, 100, 0.001f));
-		joints.add(new DistanceJoint(ob2, ob3, 60));
-
-		// ob2.applyForce(new Vec2D(600000, 0));
+		ob.shape = new CircleShape(center, radius);
+		ob.setMass(radius * radius);
+		return ob;
 	}
 
 	public static void main(final String[] args)
@@ -80,19 +101,23 @@ public class Test extends World {
 			if (e.type != MouseEventType.CLICK) {
 				continue;
 			}
-
-			final GameEntity o = new GameEntity();
-			o.setMaterial(Material.STEEL);
-			final int radius = 30;
-			o.shape = new CircleShape(new Vec2D(e.event.getX(), e.event.getY()), radius);
-			o.setMass(radius * radius);
-			objects.add(o);
+			entities.add(createBall(new Vec2D(e.event.getX(), e.event.getY()), 10));
+		}
+		for (final KeyEvent e : keyEvents) {
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_D:
+				center.applyForce(new Vec2D(100000, 0));
+				break;
+			case KeyEvent.VK_A:
+				center.applyForce(new Vec2D(-100000, 0));
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void draw(Graphics g) {
-		for (final GameEntity object : objects) {
+		for (final GameEntity object : entities) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).min.x;
 				final int y = (int) ((RectShape) object.shape).min.y;
@@ -120,25 +145,32 @@ public class Test extends World {
 				g.drawOval(x, y, radius * 2, radius * 2);
 			}
 		}
-		for (final Joint j : joints) {
-			g.setColor(Color.RED);
-			final float x1 = j.getA().center().x;
-			final float y1 = j.getA().center().y;
-			final float x2 = j.getB().center().x;
-			final float y2 = j.getB().center().y;
-			g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+		for (final Constraint c : constraints) {
+			if (c instanceof Joint) {
+				final Joint j = (Joint) c;
+				g.setColor(Color.RED);
+				final float x1 = j.getA().center().x;
+				final float y1 = j.getA().center().y;
+				final float x2 = j.getB().center().x;
+				final float y2 = j.getB().center().y;
+				g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+			}
 		}
 
 		g.setColor(Color.RED);
-		g.drawString("Entities: " + objects.size(), 10, 15);
+		g.drawString("Entities: " + entities.size(), 10, 15);
 		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
 		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
 	}
 
+	int i = 0;
+
 	@Override
 	public void updateWorld(float dt) {
-		// TODO Auto-generated method stub
-
+		i++;
+		if (i % 15 == 0) {
+			entities.add(createBall(new Vec2D(600, 200), 10));
+		}
 	}
 
 }
