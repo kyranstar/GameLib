@@ -48,18 +48,10 @@ public final class Collisions {
 	}
 
 	/**
-	 * Fixes a collision between two objects by correcting their positions and
-	 * applying impulses.
+	 * Fixes a collision between two objects by correcting their positions and applying impulses.
 	 *
 	 */
 	public static void fixCollision(final CManifold m, final boolean applyFriction) {
-		if (m.penetration == 0 || m.normal.equals(Vec2D.ZERO)) {
-			return;
-		}
-		// assert normal is normalized
-		assert Math.abs(m.normal.length() - 1) <= 0.01f;
-		assert Float.isFinite(m.penetration);
-		assert!Float.isNaN(m.penetration);
 
 		final GameEntity a = m.a;
 		final GameEntity b = m.b;
@@ -67,7 +59,9 @@ public final class Collisions {
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 
 		// Calculate relative velocity in terms of the normal direction
-		final float velAlongNormal = Math.abs(rv.dotProduct(m.normal));
+		final float velAlongNormal = Math.abs(rv.dotProduct(m.getNormal()));
+
+		assert velAlongNormal >= 0;
 
 		// Calculate restitution
 		final float e = Math.min(a.getRestitution(), b.getRestitution());
@@ -77,7 +71,7 @@ public final class Collisions {
 		j /= a.getInvMass() + b.getInvMass();
 
 		// Apply impulse
-		final Vec2D impulse = m.normal.multiply(j);
+		final Vec2D impulse = m.getNormal().multiply(j);
 
 		a.applyForce(impulse.multiply(-1));
 		b.applyForce(impulse);
@@ -96,7 +90,7 @@ public final class Collisions {
 		// relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 		// normalized tangent force
-		final Vec2D tangent = rv.minus(m.normal.multiply(m.normal.dotProduct(rv))).unitVector();
+		final Vec2D tangent = rv.minus(m.getNormal().multiply(m.getNormal().dotProduct(rv))).unitVector();
 		// friction magnitude
 		final float jt = -rv.dotProduct(tangent) / (a.getInvMass() + b.getInvMass());
 
@@ -105,8 +99,8 @@ public final class Collisions {
 		final float dynamicFriction = (a.getDynamicFriction() + b.getDynamicFriction()) / 2;
 
 		// Coulomb's law: force of friction <= force along normal * mu
-		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt)
-				: tangent.multiply(-normalMagnitude * dynamicFriction);
+		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude
+				* dynamicFriction);
 
 		// apply friction
 		a.applyForce(frictionImpulse.multiply(-1));
@@ -157,10 +151,9 @@ public final class Collisions {
 		// objects.
 		final float slop = 0.1f; // usually 0.01 to 0.1
 
-		final float correctionMag = m.penetration > 0 ? Math.max(m.penetration - slop, 0)
-				: Math.min(m.penetration + slop, 0);
+		final float correctionMag = m.getPenetration() > 0 ? Math.max(m.getPenetration() - slop, 0) : Math.min(m.getPenetration() + slop, 0);
 
-		final Vec2D correction = m.normal.multiply(correctionMag / (a.getInvMass() + b.getInvMass()) * percent);
+		final Vec2D correction = m.getNormal().multiply(correctionMag / (a.getInvMass() + b.getInvMass()) * percent);
 		a.moveRelative(correction.multiply(-1 * a.getInvMass()));
 		b.moveRelative(correction.multiply(b.getInvMass()));
 	}

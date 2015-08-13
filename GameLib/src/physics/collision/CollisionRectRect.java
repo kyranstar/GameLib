@@ -14,9 +14,9 @@ class CollisionRectRect {
 
 		final Rectangle2D r = a.getRect().createIntersection(b.getRect());
 
-		m.normal = collisionNormal(a, b);
+		m.setNormal(collisionNormal(a, b));
 		// penetration is the min resolving distance
-		m.penetration = (float) Math.min(r.getWidth(), r.getHeight());
+		m.setPenetration((float) Math.min(r.getWidth(), r.getHeight()));
 		return m;
 	}
 

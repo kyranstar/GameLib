@@ -1,20 +1,24 @@
 package draw;
 
+import game.GameLoop;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
-
-import game.GameLoop;
 
 public abstract class DrawingPanel extends GameLoop {
 
 	private BufferedImage image;
-	private JPanel panel;
-	private Color background;
+	private Graphics2D ig;
+	private Graphics pg;
+
+	private int backgroundRGB;
 
 	public DrawingPanel(final int fps, final int ups, final JPanel panel, final Color background) {
 		super(fps, ups);
@@ -35,15 +39,17 @@ public abstract class DrawingPanel extends GameLoop {
 		this(panel, Color.WHITE);
 	}
 
-	public DrawingPanel(int ups, JPanel panel, Color background) {
+	public DrawingPanel(final int ups, final JPanel panel, final Color background) {
 		super(ups);
 		initialize(panel, background);
 	}
 
 	private void initialize(final JPanel panel, final Color background) {
 		image = GraphicsUtils.createImage(panel.getWidth(), panel.getHeight(), Transparency.OPAQUE);
-		this.panel = panel;
-		this.background = background;
+		ig = (Graphics2D) image.getGraphics();
+		pg = panel.getGraphics();
+		GraphicsUtils.prettyGraphics(ig);
+		backgroundRGB = background.getRGB();
 
 		panel.addMouseListener(this);
 		panel.addMouseMotionListener(this);
@@ -56,21 +62,15 @@ public abstract class DrawingPanel extends GameLoop {
 
 	@Override
 	public void draw() {
-		final Graphics2D g = (Graphics2D) image.getGraphics();
-		GraphicsUtils.prettyGraphics(g);
+		// set background
+		Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), backgroundRGB);
 
-		g.setColor(background);
-		g.fillRect(0, 0, image.getWidth(), image.getHeight());
-
-		draw(g);
-		g.dispose();
-
-		final Graphics pg = panel.getGraphics();
+		// draw on the buffer
+		draw(ig);
+		// draw our buffer to the screen
 		pg.drawImage(image, 0, 0, null);
-
-		pg.dispose();
 	}
 
-	public abstract void draw(Graphics g);
+	public abstract void draw(Graphics2D g);
 
 }

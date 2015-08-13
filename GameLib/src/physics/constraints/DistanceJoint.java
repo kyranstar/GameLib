@@ -28,9 +28,13 @@ public class DistanceJoint extends Joint {
 		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
+		if (d == distance) {
+			// we don't need to do anything
+			return;
+		}
 
-		m.normal = d < distance ? n.divide(d).multiply(-1) : n.divide(d);
-		m.penetration = Math.abs(d - distance);
+		m.setNormal(d < distance ? n.divide(d).multiply(-1) : n.divide(d));
+		m.setPenetration(Math.abs(d - distance));
 
 		Collisions.fixCollision(m, false);
 	}

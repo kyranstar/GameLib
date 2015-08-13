@@ -66,8 +66,8 @@ class CollisionRectCircle {
 		final float r = b.radius;
 		// Collision normal needs to be flipped to point outside if circle was
 		// inside the AABB
-		m.normal = inside ? normal.divide(d).multiply(-1) : normal.divide(d);
-		m.penetration = r - d;
+		m.setNormal(inside ? normal.divide(d).multiply(-1) : normal.divide(d));
+		m.setPenetration(r - d);
 		return m;
 	}
 

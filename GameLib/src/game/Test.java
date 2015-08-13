@@ -3,6 +3,7 @@ package game;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -26,7 +27,7 @@ public class Test extends World {
 
 	GameEntity center;
 
-	public Test(JPanel panel) {
+	public Test(final JPanel panel) {
 		super(60, panel);
 
 		final GameEntity ob = new GameEntity(this);
@@ -43,14 +44,12 @@ public class Test extends World {
 
 		final float vertices = 12;
 		final float dist = 120;
-		final float elasticity = 0.001f;
 
 		GameEntity first = null;
 		GameEntity last = null;
 		for (int i = 0; i < vertices; i++) {
 			final float angle = (float) (2 * Math.PI / vertices * i);
-			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist),
-					(float) (centerV.y + Math.sin(angle) * dist));
+			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist), (float) (centerV.y + Math.sin(angle) * dist));
 			final GameEntity vertex = createBall(newCenter, 10);
 			entities.add(vertex);
 			if (last != null) {
@@ -67,7 +66,7 @@ public class Test extends World {
 
 	}
 
-	private GameEntity createBall(Vec2D center, int radius) {
+	private GameEntity createBall(final Vec2D center, final int radius) {
 		final GameEntity ob = new GameEntity(this);
 
 		ob.setMaterial(Material.STEEL);
@@ -76,8 +75,7 @@ public class Test extends World {
 		return ob;
 	}
 
-	public static void main(final String[] args)
-			throws HeadlessException, InvocationTargetException, InterruptedException {
+	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
 		final JPanel panel = new JPanel();
 
 		SwingUtilities.invokeAndWait(() -> {
@@ -94,8 +92,7 @@ public class Test extends World {
 	}
 
 	@Override
-	public void processInput(final Queue<KeyEvent> keyEvents,
-			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
+	public void processInput(final Queue<KeyEvent> keyEvents, final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
 			final Queue<MouseWheelEvent> mouseWheelEvents2) {
 		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
 			if (e.type != MouseEventType.CLICK) {
@@ -103,20 +100,10 @@ public class Test extends World {
 			}
 			entities.add(createBall(new Vec2D(e.event.getX(), e.event.getY()), 10));
 		}
-		for (final KeyEvent e : keyEvents) {
-			switch (e.getKeyCode()) {
-			case KeyEvent.VK_D:
-				center.applyForce(new Vec2D(100000, 0));
-				break;
-			case KeyEvent.VK_A:
-				center.applyForce(new Vec2D(-100000, 0));
-				break;
-			}
-		}
 	}
 
 	@Override
-	public void draw(Graphics g) {
+	public void draw(final Graphics2D g) {
 		for (final GameEntity object : entities) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).min.x;
@@ -161,14 +148,28 @@ public class Test extends World {
 		g.drawString("Entities: " + entities.size(), 10, 15);
 		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
 		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
+
+		drawMeter(g);
+	}
+
+	private void drawMeter(final Graphics g) {
+		final int x = 10;
+		final int top = 60;
+		final int bottom = (int) (top + PIXELS_PER_METER);
+
+		g.setColor(Color.RED);
+		g.drawLine(x, top, x + 10, top);
+		g.drawLine(x, top, x, bottom);
+		g.drawLine(x, bottom, x + 10, bottom);
+		g.drawString("1 meter", x + 10, (top + bottom) / 2);
 	}
 
 	int i = 0;
 
 	@Override
-	public void updateWorld(float dt) {
+	public void updateWorld(final float dt) {
 		i++;
-		if (i % 15 == 0) {
+		if (i % 25 == 0) {
 			entities.add(createBall(new Vec2D(600, 200), 10));
 		}
 	}

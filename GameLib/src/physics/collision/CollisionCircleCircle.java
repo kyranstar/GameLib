@@ -20,13 +20,13 @@ class CollisionCircleCircle {
 		if (dist == 0) {
 			// circles are on the same position, choose random but consistent
 			// values
-			m.normal = new Vec2D(0, 1);
-			m.penetration = Math.min(a.radius, b.radius);
+			m.setNormal(new Vec2D(0, 1));
+			m.setPenetration(Math.min(a.radius, b.radius));
 			return m;
 		}
 		// don't recalculate dist to normalize
-		m.normal = n.divide(dist);
-		m.penetration = b.radius + a.radius - dist;
+		m.setNormal(n.divide(dist));
+		m.setPenetration(b.radius + a.radius - dist);
 		return m;
 	}
 }

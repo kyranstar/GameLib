@@ -7,27 +7,28 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import draw.DrawingPanel;
 import physics.GameEntity;
 import physics.collision.Collisions;
 import physics.collision.quadtree.Quadtree;
 import physics.constraints.Constraint;
+import draw.DrawingPanel;
 
 public abstract class World extends DrawingPanel {
 
+	public final float PIXELS_PER_METER = 50f;
 	/**
 	 * The velocity the object has to be below to be considered still
 	 */
 	public final float SLEEP_THRESHOLD = 2f;
 	/**
-	 * The consecutive amount of frames the object has to be still to be
-	 * considered sleeping
+	 * The consecutive amount of frames the object has to be still to be considered sleeping
 	 */
 	public final int FRAMES_STILL_TO_SLEEP = 15;
 	public final boolean SLEEPING_ENABLED = true;
 	public final float AIR_FRICTION = 25;
 
-	private final Vec2D GRAVITY = new Vec2D(0, 980f);
+	// meters per second
+	private final Vec2D GRAVITY = new Vec2D(0, 9.8f);
 	// the number of times to run collision detection and response per frame
 	private static final int COLLISION_ITERATIONS = 3;
 	private final Rectangle bounds;
@@ -36,13 +37,13 @@ public abstract class World extends DrawingPanel {
 	protected final List<Constraint> constraints = new ArrayList<>();
 	private final Quadtree quadtree;
 
-	public World(int fps, int ups, JPanel panel) {
+	public World(final int fps, final int ups, final JPanel panel) {
 		super(fps, ups, panel, Color.WHITE);
 		quadtree = new Quadtree(panel.getBounds());
 		bounds = panel.getBounds();
 	}
 
-	public World(int ups, JPanel panel) {
+	public World(final int ups, final JPanel panel) {
 		super(ups, panel, Color.WHITE);
 
 		quadtree = new Quadtree(panel.getBounds());
@@ -50,7 +51,7 @@ public abstract class World extends DrawingPanel {
 	}
 
 	@Override
-	public void update(float dt) {
+	public void update(final float dt) {
 		for (int i = 0; i < COLLISION_ITERATIONS; i++) {
 			handleCollisions(dt / COLLISION_ITERATIONS);
 		}
@@ -62,7 +63,7 @@ public abstract class World extends DrawingPanel {
 
 	private void handleCollisions(final float dt) {
 
-		final Vec2D gravity = GRAVITY.multiply(dt);
+		final Vec2D gravity = GRAVITY.multiply(dt * PIXELS_PER_METER);
 		// create quadtree
 		quadtree.clear();
 		for (int i = 0; i < entities.size(); i++) {
