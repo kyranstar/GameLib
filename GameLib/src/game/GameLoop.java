@@ -51,8 +51,6 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		float counterstart = System.nanoTime();
 
 		// the amount of time to update by per update
-		final float dt = targetDT;
-
 		long currentTime = System.currentTimeMillis();
 		// accumulates available time for updating.
 		float accumulator = 0.0f;
@@ -68,10 +66,10 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 			currentTime = newTime;
 
 			accumulator += frameTime / 1000.;
-			while (accumulator >= dt) {
-				update(dt);
+			while (accumulator >= targetDT) {
+				update(targetDT);
 				currentUPS++;
-				accumulator -= dt;
+				accumulator -= targetDT;
 			}
 			final long timeBeforeDraw = System.currentTimeMillis();
 			draw();

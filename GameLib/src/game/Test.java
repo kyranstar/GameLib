@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import math.AngleUtils;
 import physics.GameEntity;
 import physics.Material;
 import physics.collision.CircleShape;
@@ -43,7 +44,7 @@ public class Test extends World {
 		center.setMass(GameEntity.INFINITE_MASS);
 		entities.add(center);
 
-		final float vertices = 6;
+		final float vertices = 12;
 		final float dist = 120;
 
 		GameEntity first = null;
@@ -54,15 +55,15 @@ public class Test extends World {
 			final GameEntity vertex = createBall(newCenter, 10);
 			entities.add(vertex);
 			if (last != null) {
-				// constraints.add(new DistanceJoint(last, vertex));
+				// constraints.add(new SpringJoint(last, vertex, 0.001f));
 			} else {
 				first = vertex;
 			}
 			constraints.add(new DistanceJoint(center, vertex));
-			constraints.add(new AngleJoint(center, vertex, angle, .1f));
+			constraints.add(new AngleJoint(center, vertex, angle - AngleUtils.PI, AngleUtils.PI / 12));
 			last = vertex;
 			if (i == vertices - 1 && first != null) {
-				// constraints.add(new DistanceJoint(first, vertex));
+				// constraints.add(new SpringJoint(first, vertex, 0.001f));
 			}
 		}
 

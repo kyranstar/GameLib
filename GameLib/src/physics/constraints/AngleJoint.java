@@ -1,35 +1,33 @@
 package physics.constraints;
 
 import game.Vec2D;
+import math.AngleUtils;
 import physics.GameEntity;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
 public class AngleJoint extends Joint {
 
-	private float minAngle;
-	private float maxAngle;
+	// angles stored between -Pi and Pi
+	private final float minAngle;
+	private final float maxAngle;
 
+	/**
+	 *
+	 * @param a
+	 * @param b
+	 * @param midAngle
+	 *            the angle in the range of -Pi to Pi.
+	 * @param tolerance
+	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
+	 */
 	public AngleJoint(final GameEntity a, final GameEntity b, final float midAngle, final float tolerance) {
 		super(a, b);
-		assert tolerance >= 0;
-		System.out.println(midAngle);
-		minAngle = midAngle - tolerance;
-		maxAngle = midAngle + tolerance;
-
-		while (minAngle > Math.PI) {
-			minAngle -= 2 * Math.PI;
+		if (tolerance < 0 || tolerance >= AngleUtils.PI) {
+			throw new IllegalArgumentException("Tolerance must be >= 0 and < Pi");
 		}
-		while (minAngle < -Math.PI) {
-			minAngle += 2 * Math.PI;
-		}
-		while (maxAngle > Math.PI) {
-			maxAngle -= 2 * Math.PI;
-		}
-		while (maxAngle < -Math.PI) {
-			maxAngle += 2 * Math.PI;
-		}
-		System.out.println(minAngle + ", " + maxAngle);
+		minAngle = AngleUtils.normalize(midAngle - tolerance);
+		maxAngle = AngleUtils.normalize(midAngle + tolerance);
 	}
 
 	@Override
@@ -48,10 +46,15 @@ public class AngleJoint extends Joint {
 			// we don't need to do anything
 			return;
 		}
+		// if we are in that dumb spot where maxAngle < min Angle (directly to the left) we need extra checks
+		if (maxAngle < minAngle && (angle <= maxAngle && angle >= -AngleUtils.PI || angle >= minAngle && angle <= AngleUtils.PI)) {
+			return;
+		}
 
 		final float distBtoA = aToB.length();
 
-		final float closestAngleBound = Math.abs(angle - maxAngle) < Math.abs(angle - minAngle) ? maxAngle : minAngle;
+		final float closestAngleBound = AngleUtils.angleDifference(angle, maxAngle) < AngleUtils.angleDifference(angle, minAngle) ? maxAngle
+				: minAngle;
 
 		// where we should be
 		final Vec2D solvedLocation = getA().center().plus(
