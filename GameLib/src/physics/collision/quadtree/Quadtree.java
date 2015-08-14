@@ -1,5 +1,7 @@
 package physics.collision.quadtree;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -137,5 +139,15 @@ public class Quadtree {
 		}
 
 		return index;
+	}
+
+	public void draw(final Graphics2D g) {
+		g.setColor(Color.RED);
+		g.draw(bounds);
+		for (int i = 0; i < 4; i++) {
+			if (nodes[i] != null) {
+				nodes[i].draw(g);
+			}
+		}
 	}
 }

@@ -35,7 +35,7 @@ public abstract class World extends DrawingPanel {
 
 	protected final List<GameEntity> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
-	private final Quadtree quadtree;
+	protected final Quadtree quadtree;
 
 	public World(final int fps, final int ups, final JPanel panel) {
 		super(fps, ups, panel, Color.WHITE);

@@ -81,6 +81,8 @@ public final class Collisions {
 		}
 
 		positionalCorrection(m);
+
+		m.a.sleeping = m.b.sleeping = false;
 	}
 
 	private static void applyFriction(final CManifold m, final float normalMagnitude) {

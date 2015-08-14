@@ -19,6 +19,7 @@ import physics.GameEntity;
 import physics.Material;
 import physics.collision.CircleShape;
 import physics.collision.RectShape;
+import physics.constraints.AngleJoint;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
 import physics.constraints.Joint;
@@ -42,7 +43,7 @@ public class Test extends World {
 		center.setMass(GameEntity.INFINITE_MASS);
 		entities.add(center);
 
-		final float vertices = 12;
+		final float vertices = 6;
 		final float dist = 120;
 
 		GameEntity first = null;
@@ -53,14 +54,15 @@ public class Test extends World {
 			final GameEntity vertex = createBall(newCenter, 10);
 			entities.add(vertex);
 			if (last != null) {
-				constraints.add(new DistanceJoint(last, vertex));
+				// constraints.add(new DistanceJoint(last, vertex));
 			} else {
 				first = vertex;
 			}
 			constraints.add(new DistanceJoint(center, vertex));
+			constraints.add(new AngleJoint(center, vertex, angle, .1f));
 			last = vertex;
 			if (i == vertices - 1 && first != null) {
-				constraints.add(new DistanceJoint(first, vertex));
+				// constraints.add(new DistanceJoint(first, vertex));
 			}
 		}
 
@@ -106,10 +108,10 @@ public class Test extends World {
 	public void draw(final Graphics2D g) {
 		for (final GameEntity object : entities) {
 			if (object.shape instanceof RectShape) {
-				final int x = (int) ((RectShape) object.shape).min.x;
-				final int y = (int) ((RectShape) object.shape).min.y;
-				final int width = (int) (((RectShape) object.shape).max.x - ((RectShape) object.shape).min.x);
-				final int height = (int) (((RectShape) object.shape).max.y - ((RectShape) object.shape).min.y);
+				final int x = (int) ((RectShape) object.shape).getMin().x;
+				final int y = (int) ((RectShape) object.shape).getMin().y;
+				final int width = (int) (((RectShape) object.shape).getMax().x - ((RectShape) object.shape).getMin().x);
+				final int height = (int) (((RectShape) object.shape).getMax().y - ((RectShape) object.shape).getMin().y);
 				if (!object.sleeping) {
 					g.setColor(new Color(50, 100, 200));
 				} else {
@@ -119,9 +121,9 @@ public class Test extends World {
 				g.setColor(Color.BLACK);
 				g.drawRect(x, y, width, height);
 			} else if (object.shape instanceof CircleShape) {
-				final int radius = (int) ((CircleShape) object.shape).radius;
-				final int x = (int) ((CircleShape) object.shape).center.x - radius;
-				final int y = (int) ((CircleShape) object.shape).center.y - radius;
+				final int radius = (int) ((CircleShape) object.shape).getRadius();
+				final int x = (int) ((CircleShape) object.shape).getCenter().x - radius;
+				final int y = (int) ((CircleShape) object.shape).getCenter().y - radius;
 				if (!object.sleeping) {
 					g.setColor(new Color(200, 100, 50));
 				} else {
@@ -150,6 +152,7 @@ public class Test extends World {
 		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
 
 		drawMeter(g);
+		quadtree.draw(g);
 	}
 
 	private void drawMeter(final Graphics g) {
@@ -170,7 +173,7 @@ public class Test extends World {
 	public void updateWorld(final float dt) {
 		i++;
 		if (i % 25 == 0) {
-			entities.add(createBall(new Vec2D(600, 200), 10));
+			// entities.add(createBall(new Vec2D(400, 200), 10));
 		}
 	}
 

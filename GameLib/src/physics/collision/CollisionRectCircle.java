@@ -4,13 +4,13 @@ import game.Vec2D;
 
 class CollisionRectCircle {
 	public static boolean isColliding(final RectShape a, final CircleShape b) {
-		final float circleDistance_x = Math.abs(b.center().x - (a.min.x + a.width() / 2));
-		final float circleDistance_y = Math.abs(b.center().y - (a.min.y + a.height() / 2));
+		final float circleDistance_x = Math.abs(b.center().x - (a.getMin().x + a.width() / 2));
+		final float circleDistance_y = Math.abs(b.center().y - (a.getMin().y + a.height() / 2));
 
-		if (circleDistance_x > a.width() / 2 + b.radius) {
+		if (circleDistance_x > a.width() / 2 + b.getRadius()) {
 			return false;
 		}
-		if (circleDistance_y > a.height() / 2 + b.radius) {
+		if (circleDistance_y > a.height() / 2 + b.getRadius()) {
 			return false;
 		}
 
@@ -24,7 +24,7 @@ class CollisionRectCircle {
 		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2)
 				+ (int) Math.pow(circleDistance_y - a.height() / 2, 2);
 
-		return cornerDistance_sq <= (int) Math.pow(b.radius, 2);
+		return cornerDistance_sq <= (int) Math.pow(b.getRadius(), 2);
 
 	}
 
@@ -63,7 +63,7 @@ class CollisionRectCircle {
 		// vector from closest to the center of the circle
 		final Vec2D normal = n.minus(closest);
 		final float d = normal.length();
-		final float r = b.radius;
+		final float r = b.getRadius();
 		// Collision normal needs to be flipped to point outside if circle was
 		// inside the AABB
 		m.setNormal(inside ? normal.divide(d).multiply(-1) : normal.divide(d));

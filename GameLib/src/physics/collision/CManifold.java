@@ -30,7 +30,6 @@ public class CManifold {
 	}
 
 	public void setPenetration(final float penetration) {
-		assert penetration != 0;
 		assert Float.isFinite(penetration);
 		assert !Float.isNaN(penetration);
 
