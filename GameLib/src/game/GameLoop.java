@@ -25,6 +25,15 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	private int runningFPS;
 	private int runningUPS;
 
+	private int currentFPS = 0;
+	private int currentUPS = 0;
+	private float counterstart = System.nanoTime();
+
+	// the amount of time to update by per update
+	private long currentTime = System.currentTimeMillis();
+	// accumulates available time for updating.
+	private float accumulator = 0.0f;
+
 	protected GameLoop(final int fps, final int ups) {
 		setTargetFPS(fps);
 		setTargetUPS(ups);
@@ -46,49 +55,51 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	}
 
 	public void run() {
-		int currentFPS = 0;
-		int currentUPS = 0;
-		float counterstart = System.nanoTime();
+		counterstart = System.nanoTime();
 
 		// the amount of time to update by per update
-		long currentTime = System.currentTimeMillis();
+		currentTime = System.currentTimeMillis();
 		// accumulates available time for updating.
-		float accumulator = 0.0f;
+		accumulator = 0.0f;
 
 		while (running) {
-			processEvents();
+			runFrame();
+		}
+	}
 
-			final long newTime = System.currentTimeMillis();
-			long frameTime = newTime - currentTime;
-			if (frameTime > 250) {
-				frameTime = 250;
-			}
-			currentTime = newTime;
+	public void runFrame() {
+		processEvents();
 
-			accumulator += frameTime / 1000.;
-			while (accumulator >= targetDT) {
-				update(targetDT);
-				currentUPS++;
-				accumulator -= targetDT;
-			}
-			final long timeBeforeDraw = System.currentTimeMillis();
-			draw();
-			currentFPS++;
-			final float counterelapsed = System.nanoTime() - counterstart;
+		final long newTime = System.currentTimeMillis();
+		long frameTime = newTime - currentTime;
+		if (frameTime > 250) {
+			frameTime = 250;
+		}
+		currentTime = newTime;
 
-			// at the end of every second
-			if (counterelapsed >= 1000000000L) {
-				// runningFPS is how many frames we processed last second
-				runningFPS = currentFPS;
-				currentFPS = 0;
-				runningUPS = currentUPS;
-				currentUPS = 0;
+		accumulator += frameTime / 1000.;
+		while (accumulator >= targetDT) {
+			update(targetDT);
+			currentUPS++;
+			accumulator -= targetDT;
+		}
+		final long timeBeforeDraw = System.currentTimeMillis();
+		draw();
+		currentFPS++;
+		final float counterelapsed = System.nanoTime() - counterstart;
 
-				counterstart = System.nanoTime();
-			}
-			if (capFPS) {
-				sleep((int) (targetDrawTime - (System.currentTimeMillis() - timeBeforeDraw)));
-			}
+		// at the end of every second
+		if (counterelapsed >= 1000000000L) {
+			// runningFPS is how many frames we processed last second
+			runningFPS = currentFPS;
+			currentFPS = 0;
+			runningUPS = currentUPS;
+			currentUPS = 0;
+
+			counterstart = System.nanoTime();
+		}
+		if (capFPS) {
+			sleep((int) (targetDrawTime - (System.currentTimeMillis() - timeBeforeDraw)));
 		}
 	}
 
@@ -127,8 +138,8 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		running = false;
 	}
 
-	public abstract void processInput(Queue<KeyEvent> keyEvents,
-			Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent, Queue<MouseWheelEvent> mouseWheelEvents2);
+	public abstract void processInput(Queue<KeyEvent> keyEvents, Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent,
+			Queue<MouseWheelEvent> mouseWheelEvents2);
 
 	public abstract void update(float dt);
 
@@ -221,6 +232,11 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	}
 
 	protected static enum MouseEventType {
-		PRESS, CLICK, RELEASE, DRAG, EXIT, ENTER;
+		PRESS,
+		CLICK,
+		RELEASE,
+		DRAG,
+		EXIT,
+		ENTER;
 	}
 }

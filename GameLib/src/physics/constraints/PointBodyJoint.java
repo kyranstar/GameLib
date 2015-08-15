@@ -1,26 +1,27 @@
 package physics.constraints;
 
+import game.Vec2D;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 
 import physics.PhysicsEntity;
 
-public abstract class Joint extends Constraint {
-
+public abstract class PointBodyJoint extends Constraint {
 	private final PhysicsEntity a;
-	private final PhysicsEntity b;
+	private final Vec2D point;
 
-	public Joint(final PhysicsEntity a, final PhysicsEntity b) {
+	public PointBodyJoint(final PhysicsEntity a, final Vec2D point) {
 		this.a = a;
-		this.b = b;
+		this.point = point;
 	}
 
 	public PhysicsEntity getA() {
 		return a;
 	}
 
-	public PhysicsEntity getB() {
-		return b;
+	public Vec2D getB() {
+		return point;
 	}
 
 	@Override
@@ -28,8 +29,8 @@ public abstract class Joint extends Constraint {
 		g.setColor(Color.RED);
 		final float x1 = getA().center().x;
 		final float y1 = getA().center().y;
-		final float x2 = getB().center().x;
-		final float y2 = getB().center().y;
+		final float x2 = getB().x;
+		final float y2 = getB().y;
 		g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
 	}
 }

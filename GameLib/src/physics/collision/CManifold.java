@@ -1,7 +1,7 @@
 package physics.collision;
 
 import game.Vec2D;
-import physics.GameEntity;
+import physics.PhysicsEntity;
 
 /**
  * Holds data about a collision between two GameObjects
@@ -11,9 +11,9 @@ import physics.GameEntity;
  */
 public class CManifold {
 	// object A
-	public GameEntity a;
+	public PhysicsEntity a;
 	// object B
-	public GameEntity b;
+	public PhysicsEntity b;
 	// penetration amount
 	private float penetration;
 	// collision normal

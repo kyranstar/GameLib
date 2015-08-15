@@ -1,13 +1,13 @@
 package physics.constraints;
 
 import game.Vec2D;
-import physics.GameEntity;
+import physics.PhysicsEntity;
 
 public class SpringJoint extends Joint {
 	public float distance;
 	private final float restitution;
 
-	public SpringJoint(final GameEntity a, final GameEntity b, final float distance, final float restitution) {
+	public SpringJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance, final float restitution) {
 		super(a, b);
 
 		if (restitution == 0.0f) {
@@ -18,7 +18,7 @@ public class SpringJoint extends Joint {
 		this.restitution = restitution;
 	}
 
-	public SpringJoint(final GameEntity a, final GameEntity b, final float restitution) {
+	public SpringJoint(final PhysicsEntity a, final PhysicsEntity b, final float restitution) {
 		this(a, b, a.center().minus(b.center()).length(), restitution);
 	}
 
@@ -26,7 +26,7 @@ public class SpringJoint extends Joint {
 	public void update() {
 		assert getA() != null && getB() != null;
 
-		final Vec2D n = a.center().minus(b.center());
+		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
 
@@ -35,8 +35,8 @@ public class SpringJoint extends Joint {
 
 		final Vec2D springForce = normal.multiply(penetration * (1f / restitution));
 
-		a.applyForce(springForce.multiply(-1));
-		b.applyForce(springForce);
+		getA().applyForce(springForce.multiply(-1));
+		getB().applyForce(springForce);
 
 	}
 

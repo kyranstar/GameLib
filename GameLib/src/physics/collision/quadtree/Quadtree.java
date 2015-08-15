@@ -7,14 +7,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import physics.GameEntity;
+import physics.PhysicsEntity;
 
 public class Quadtree {
 	private final int MAX_OBJECTS = 10;
 	private final int MAX_LEVELS = 10;
 
 	private final int level;
-	private final List<GameEntity> objects;
+	private final List<PhysicsEntity> objects;
 	private final Rectangle bounds;
 	private final Quadtree[] nodes;
 
@@ -24,7 +24,7 @@ public class Quadtree {
 
 	private Quadtree(final int pLevel, final Rectangle pBounds) {
 		level = pLevel;
-		objects = new ArrayList<GameEntity>();
+		objects = new ArrayList<PhysicsEntity>();
 		bounds = pBounds;
 		nodes = new Quadtree[4];
 	}
@@ -33,7 +33,7 @@ public class Quadtree {
 	 * Insert the object into the quadtree. If the node exceeds the capacity, it will split and add all objects to their
 	 * corresponding nodes.
 	 */
-	public void insert(final GameEntity e) {
+	public void insert(final PhysicsEntity e) {
 
 		if (nodes[0] != null) {
 			final int index = getIndex(e);
@@ -67,12 +67,12 @@ public class Quadtree {
 	/*
 	 * Populates returnObjects with all objects that could collide with the given object
 	 */
-	public void retrieve(final List<GameEntity> returnObjects, final GameEntity e) {
+	public void retrieve(final List<PhysicsEntity> returnObjects, final PhysicsEntity e) {
 		final int index = getIndex(e);
 		if (index != -1 && nodes[0] != null) {
 			nodes[index].retrieve(returnObjects, e);
 		}
-		for (final GameEntity ge : objects) {
+		for (final PhysicsEntity ge : objects) {
 			if (ge == e) {
 				continue;
 			}
@@ -109,7 +109,7 @@ public class Quadtree {
 	 * Determine which node the object belongs to. -1 means object cannot completely fit within a child node and is part
 	 * of the parent node
 	 */
-	private int getIndex(final GameEntity e) {
+	private int getIndex(final PhysicsEntity e) {
 		final Rectangle2D pRect = e.shape.getRect();
 
 		int index = -1;

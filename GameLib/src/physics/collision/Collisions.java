@@ -1,7 +1,7 @@
 package physics.collision;
 
 import game.Vec2D;
-import physics.GameEntity;
+import physics.PhysicsEntity;
 
 /**
  * Holds methods to perform physics operations on GameObjects.
@@ -23,7 +23,7 @@ public final class Collisions {
 	 *            must be a RectObject or CircleObject
 	 * @return
 	 */
-	public static boolean isColliding(final GameEntity a, final GameEntity b) {
+	public static boolean isColliding(final PhysicsEntity a, final PhysicsEntity b) {
 		final CShape as = a.shape;
 		final CShape bs = b.shape;
 
@@ -43,8 +43,12 @@ public final class Collisions {
 		throw new UnsupportedOperationException();
 	}
 
-	public static void fixCollision(final GameEntity a, final GameEntity b) {
+	public static void fixCollision(final PhysicsEntity a, final PhysicsEntity b) {
 		fixCollision(generateManifold(a, b), true);
+	}
+
+	public static void fixCollision(final PhysicsEntity a, final PhysicsEntity b, final float restitution) {
+		fixCollision(generateManifold(a, b), true, restitution);
 	}
 
 	/**
@@ -52,9 +56,12 @@ public final class Collisions {
 	 *
 	 */
 	public static void fixCollision(final CManifold m, final boolean applyFriction) {
+		fixCollision(m, applyFriction, Math.min(m.a.getRestitution(), m.b.getRestitution()));
+	}
 
-		final GameEntity a = m.a;
-		final GameEntity b = m.b;
+	private static void fixCollision(final CManifold m, final boolean applyFriction, final float restitution) {
+		final PhysicsEntity a = m.a;
+		final PhysicsEntity b = m.b;
 		// Calculate relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 
@@ -86,8 +93,8 @@ public final class Collisions {
 	}
 
 	private static void applyFriction(final CManifold m, final float normalMagnitude) {
-		final GameEntity a = m.a;
-		final GameEntity b = m.b;
+		final PhysicsEntity a = m.a;
+		final PhysicsEntity b = m.b;
 
 		// relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
@@ -116,7 +123,7 @@ public final class Collisions {
 	 * @param b
 	 * @return
 	 */
-	private static CManifold generateManifold(final GameEntity a, final GameEntity b) {
+	private static CManifold generateManifold(final PhysicsEntity a, final PhysicsEntity b) {
 		final CManifold m = new CManifold();
 		m.a = a;
 		m.b = b;
@@ -139,19 +146,19 @@ public final class Collisions {
 	}
 
 	/**
-	 * Corrects positions between two colliding objects to avoid "sinking."
+	 * Corrects positions a certain amount between two colliding objects to avoid "sinking" of one object into another.
 	 *
 	 * @param m
 	 */
 	private static void positionalCorrection(final CManifold m) {
-		final GameEntity a = m.a;
-		final GameEntity b = m.b;
+		final PhysicsEntity a = m.a;
+		final PhysicsEntity b = m.b;
 
 		// the amount to correct by
 		final float percent = .4f; // usually .2 to .8
 		// the amount in which we don't really care, this avoids vibrating
 		// objects.
-		final float slop = 0.1f; // usually 0.01 to 0.1
+		final float slop = 0.01f; // usually 0.01 to 0.1
 
 		final float correctionMag = m.getPenetration() > 0 ? Math.max(m.getPenetration() - slop, 0) : Math.min(m.getPenetration() + slop, 0);
 

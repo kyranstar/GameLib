@@ -3,10 +3,8 @@ package physics.constraints;
 import game.Vec2D;
 import math.AngleUtils;
 import physics.PhysicsEntity;
-import physics.collision.CManifold;
-import physics.collision.Collisions;
 
-public class AngleJoint extends Joint {
+public class AnglePointConstraint extends PointBodyJoint {
 
 	// angles stored between -Pi and Pi
 	private final float minAngle;
@@ -15,14 +13,14 @@ public class AngleJoint extends Joint {
 	/**
 	 *
 	 * @param a
-	 * @param b
+	 * @param point
 	 * @param midAngle
 	 *            the angle in the range of -Pi to Pi.
 	 * @param tolerance
 	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
 	 */
-	public AngleJoint(final PhysicsEntity a, final PhysicsEntity b, final float midAngle, final float tolerance) {
-		super(a, b);
+	public AnglePointConstraint(final PhysicsEntity a, final Vec2D point, final float midAngle, final float tolerance) {
+		super(a, point);
 		if (tolerance < 0 || tolerance >= AngleUtils.PI) {
 			throw new IllegalArgumentException("Tolerance must be >= 0 and < Pi");
 		}
@@ -32,13 +30,7 @@ public class AngleJoint extends Joint {
 
 	@Override
 	public void update() {
-		assert getA() != null && getB() != null;
-
-		final CManifold m = new CManifold();
-		m.a = getA();
-		m.b = getB();
-
-		final Vec2D aToB = getB().center().minus(getA().center());
+		final Vec2D aToB = getB().minus(getA().center());
 		// angle from A to B
 		final float angle = aToB.getTheta();
 
@@ -59,12 +51,9 @@ public class AngleJoint extends Joint {
 		// where we should be
 		final Vec2D solvedLocation = getA().center().plus(
 				new Vec2D((float) (Math.cos(closestAngleBound) * distBtoA), (float) (Math.sin(closestAngleBound) * distBtoA)));
-		final Vec2D correction = solvedLocation.minus(getB().center());
-		final float d = correction.length();
+		final Vec2D correction = solvedLocation.minus(getB());
 
-		m.setNormal(correction.divide(d));
-		m.setPenetration(d);
-		Collisions.fixCollision(m, false);
+		getA().applyForce(correction);
 	}
 
 }

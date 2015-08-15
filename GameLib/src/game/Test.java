@@ -15,44 +15,67 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import math.AngleUtils;
-import physics.GameEntity;
 import physics.Material;
+import physics.PhysicsEntity;
 import physics.collision.CircleShape;
 import physics.collision.RectShape;
-import physics.constraints.AngleJoint;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
-import physics.constraints.Joint;
+import physics.constraints.SpringPointConstraint;
 
 public class Test extends World {
 
-	GameEntity center;
-
 	public Test(final JPanel panel) {
-		super(60, panel);
+		super(60, 120, panel);
 
-		final GameEntity ob = new GameEntity(this);
+		waves();
+
+	}
+
+	private void waves() {
+		final int parts = 20;
+
+		for (int i = 0; i < parts; i++) {
+			final int size = getWidth() / parts;
+			final PhysicsEntity part = new PhysicsEntity(this);
+			part.shape = new RectShape(new Vec2D(i * size, 500), new Vec2D((i + 1) * size - size / 5, 500 + size));
+			part.setMass(size * size / 100f);
+			part.setMaterial(Material.STEEL);
+			constraints.add(new SpringPointConstraint(part, new Vec2D(i * size + size / 2, 900), 0.1f));
+			if (i != 0) {
+				constraints.add(new DistanceJoint(part, entities.get(entities.size() - 1)));
+			}
+			if (i == 0 || i == parts - 1) {
+				part.setMass(PhysicsEntity.INFINITE_MASS);
+			}
+
+			entities.add(part);
+		}
+	}
+
+	private void ball() {
+		final PhysicsEntity ob = new PhysicsEntity(this);
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
-		ob.setMass(GameEntity.INFINITE_MASS);
+		ob.setMass(PhysicsEntity.INFINITE_MASS);
 		entities.add(ob);
 
 		final Vec2D centerV = new Vec2D(500, 700);
 
-		center = createBall(centerV, 75);
-		center.setMass(GameEntity.INFINITE_MASS);
+		final PhysicsEntity center = createBall(centerV, 75);
+		center.setMaterial(Material.RUBBER);
+		center.setMass(PhysicsEntity.INFINITE_MASS);
 		entities.add(center);
 
-		final float vertices = 12;
+		final float vertices = 24;
 		final float dist = 120;
 
-		GameEntity first = null;
-		GameEntity last = null;
+		PhysicsEntity first = null;
+		PhysicsEntity last = null;
 		for (int i = 0; i < vertices; i++) {
 			final float angle = (float) (2 * Math.PI / vertices * i);
 			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist), (float) (centerV.y + Math.sin(angle) * dist));
-			final GameEntity vertex = createBall(newCenter, 10);
+			final PhysicsEntity vertex = createBall(newCenter, 10);
 			entities.add(vertex);
 			if (last != null) {
 				// constraints.add(new SpringJoint(last, vertex, 0.001f));
@@ -60,17 +83,16 @@ public class Test extends World {
 				first = vertex;
 			}
 			constraints.add(new DistanceJoint(center, vertex));
-			constraints.add(new AngleJoint(center, vertex, angle - AngleUtils.PI, AngleUtils.PI / 12));
+			// constraints.add(new AngleJoint(center, vertex, angle - AngleUtils.PI, AngleUtils.PI / 12));
 			last = vertex;
 			if (i == vertices - 1 && first != null) {
 				// constraints.add(new SpringJoint(first, vertex, 0.001f));
 			}
 		}
-
 	}
 
-	private GameEntity createBall(final Vec2D center, final int radius) {
-		final GameEntity ob = new GameEntity(this);
+	private PhysicsEntity createBall(final Vec2D center, final int radius) {
+		final PhysicsEntity ob = new PhysicsEntity(this);
 
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new CircleShape(center, radius);
@@ -107,7 +129,7 @@ public class Test extends World {
 
 	@Override
 	public void draw(final Graphics2D g) {
-		for (final GameEntity object : entities) {
+		for (final PhysicsEntity object : entities) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).getMin().x;
 				final int y = (int) ((RectShape) object.shape).getMin().y;
@@ -136,21 +158,15 @@ public class Test extends World {
 			}
 		}
 		for (final Constraint c : constraints) {
-			if (c instanceof Joint) {
-				final Joint j = (Joint) c;
-				g.setColor(Color.RED);
-				final float x1 = j.getA().center().x;
-				final float y1 = j.getA().center().y;
-				final float x2 = j.getB().center().x;
-				final float y2 = j.getB().center().y;
-				g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
-			}
+			c.draw(g);
 		}
 
 		g.setColor(Color.RED);
 		g.drawString("Entities: " + entities.size(), 10, 15);
 		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
 		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
+		g.drawString("Collision Checks: " + collisionChecksThisTick, 10, 60);
+		g.drawString("Collision Solves: " + collisionSolvesThisTick, 10, 75);
 
 		drawMeter(g);
 		quadtree.draw(g);
@@ -158,7 +174,7 @@ public class Test extends World {
 
 	private void drawMeter(final Graphics g) {
 		final int x = 10;
-		final int top = 60;
+		final int top = 90;
 		final int bottom = (int) (top + PIXELS_PER_METER);
 
 		g.setColor(Color.RED);
@@ -172,10 +188,10 @@ public class Test extends World {
 
 	@Override
 	public void updateWorld(final float dt) {
-		i++;
-		if (i % 25 == 0) {
-			// entities.add(createBall(new Vec2D(400, 200), 10));
-		}
+		// i++;
+		// if (i % 25 == 0) {
+		// entities.add(createBall(new Vec2D(400, 200), 10));
+		// }
 	}
 
 }

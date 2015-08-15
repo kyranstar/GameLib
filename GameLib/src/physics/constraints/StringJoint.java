@@ -5,15 +5,15 @@ import physics.PhysicsEntity;
 import physics.collision.CManifold;
 import physics.collision.Collisions;
 
-public class DistanceJoint extends Joint {
+public class StringJoint extends Joint {
 	public float distance;
 
-	public DistanceJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance) {
+	public StringJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance) {
 		super(a, b);
 		this.distance = distance;
 	}
 
-	public DistanceJoint(final PhysicsEntity a, final PhysicsEntity b) {
+	public StringJoint(final PhysicsEntity a, final PhysicsEntity b) {
 		this(a, b, a.center().minus(b.center()).length());
 	}
 
@@ -28,7 +28,7 @@ public class DistanceJoint extends Joint {
 		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
-		if (d == distance) {
+		if (d <= distance) {
 			// we don't need to do anything
 			return;
 		}

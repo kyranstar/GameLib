@@ -1,26 +1,23 @@
 package physics;
 
+import game.Vec2D;
+import game.World;
+
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
-import game.Vec2D;
-import game.World;
 import physics.collision.CShape;
 
-public class GameEntity {
+public class PhysicsEntity {
 	/**
-	 * A constant representing infinite mass. If
-	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
 
-	// if the object's velocity was below the sleep threshold for more than
-	// FRAMES_STILL_TO_SLEEP
-	// frames
+	// if the object's velocity was below the sleep threshold for more than FRAMES_STILL_TO_SLEEP frames
 	public boolean sleeping;
-	// holds the number of frames this object has been still (below the sleep
-	// threshold)
+	// holds the number of frames this object has been still (below the sleep threshold)
 	public int framesStill;
 
 	private float invMass;
@@ -31,11 +28,11 @@ public class GameEntity {
 
 	public CShape shape;
 
-	public Set<GameEntity> checkedCollisionThisTick = Collections
-			.newSetFromMap(new IdentityHashMap<GameEntity, Boolean>());
+	// all entities that we've checked collisions with so far this tick
+	public final Set<PhysicsEntity> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsEntity, Boolean>());
 	private final World world;
 
-	public GameEntity(World world) {
+	public PhysicsEntity(final World world) {
 		this.world = world;
 	}
 
@@ -56,6 +53,10 @@ public class GameEntity {
 	}
 
 	public void setMass(final float mass) {
+		if (mass < 0) {
+			throw new IllegalArgumentException("Mass must be > 0 or equal to INFINITE_MASS");
+		}
+
 		if (mass == INFINITE_MASS) {
 			invMass = 0;
 		} else {
@@ -97,7 +98,7 @@ public class GameEntity {
 		return velocity;
 	}
 
-	public void setVelocity(Vec2D velocity) {
+	public void setVelocity(final Vec2D velocity) {
 		this.velocity = velocity;
 	}
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import physics.GameEntity;
+import physics.PhysicsEntity;
 import physics.collision.Collisions;
 import physics.collision.quadtree.Quadtree;
 import physics.constraints.Constraint;
@@ -19,23 +19,27 @@ public abstract class World extends DrawingPanel {
 	/**
 	 * The velocity the object has to be below to be considered still
 	 */
-	public final float SLEEP_THRESHOLD = 2f;
+	public final float SLEEP_THRESHOLD = 1f;
 	/**
 	 * The consecutive amount of frames the object has to be still to be considered sleeping
 	 */
-	public final int FRAMES_STILL_TO_SLEEP = 15;
+	public final int FRAMES_STILL_TO_SLEEP = 25;
 	public final boolean SLEEPING_ENABLED = true;
 	public final float AIR_FRICTION = 25;
 
 	// meters per second
-	private final Vec2D GRAVITY = new Vec2D(0, 9.8f);
+	protected Vec2D gravity = new Vec2D(0, 9.8f);
 	// the number of times to run collision detection and response per frame
 	private static final int COLLISION_ITERATIONS = 3;
 	private final Rectangle bounds;
 
-	protected final List<GameEntity> entities = new ArrayList<>();
+	protected final List<PhysicsEntity> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
 	protected final Quadtree quadtree;
+
+	// debug
+	protected int collisionChecksThisTick;
+	protected int collisionSolvesThisTick;
 
 	public World(final int fps, final int ups, final JPanel panel) {
 		super(fps, ups, panel, Color.WHITE);
@@ -62,8 +66,9 @@ public abstract class World extends DrawingPanel {
 	public abstract void updateWorld(float dt);
 
 	private void handleCollisions(final float dt) {
+		collisionChecksThisTick = collisionSolvesThisTick = 0;
 
-		final Vec2D gravity = GRAVITY.multiply(dt * PIXELS_PER_METER);
+		final Vec2D gravityForce = gravity.multiply(dt * PIXELS_PER_METER);
 		// create quadtree
 		quadtree.clear();
 		for (int i = 0; i < entities.size(); i++) {
@@ -71,22 +76,22 @@ public abstract class World extends DrawingPanel {
 		}
 
 		// possible objects to collide with each object
-		final List<GameEntity> collidableObjects = new ArrayList<>();
+		final List<PhysicsEntity> collidableObjects = new ArrayList<>();
 		for (int i = 0; i < entities.size(); i++) {
-			final GameEntity a = entities.get(i);
+			final PhysicsEntity a = entities.get(i);
 
 			collidableObjects.clear();
 			quadtree.retrieve(collidableObjects, a);
 
-			if (!a.sleeping && a.getMass() != GameEntity.INFINITE_MASS) {
-				a.applyForce(gravity.divide(a.getInvMass()));
+			if (!a.sleeping && a.getMass() != PhysicsEntity.INFINITE_MASS) {
+				a.applyForce(gravityForce.divide(a.getInvMass()));
 			}
 			if (!bounds.contains(a.center().toPoint())) {
 				// entities.remove(i--);
 				continue;
 			}
 			// check collisions
-			for (final GameEntity b : collidableObjects) {
+			for (final PhysicsEntity b : collidableObjects) {
 				if (b.checkedCollisionThisTick.contains(a) || a.checkedCollisionThisTick.contains(b)) {
 					// don't want to check collisions both ways
 					continue;
@@ -95,8 +100,10 @@ public abstract class World extends DrawingPanel {
 				if (b.sleeping && a.sleeping) {
 					continue;
 				}
-
+				collisionChecksThisTick++;
 				if (Collisions.isColliding(a, b)) {
+					collisionSolvesThisTick++;
+
 					Collisions.fixCollision(a, b);
 					a.sleeping = b.sleeping = false;
 				}
@@ -107,7 +114,7 @@ public abstract class World extends DrawingPanel {
 		for (final Constraint c : constraints) {
 			c.update();
 		}
-		for (final GameEntity e : entities) {
+		for (final PhysicsEntity e : entities) {
 			e.update(dt);
 			e.checkedCollisionThisTick.clear();
 
@@ -118,7 +125,7 @@ public abstract class World extends DrawingPanel {
 
 	}
 
-	private void checkSleep(final GameEntity a) {
+	private void checkSleep(final PhysicsEntity a) {
 		if (a.getVelocity().x < SLEEP_THRESHOLD && a.getVelocity().x > -SLEEP_THRESHOLD //
 				&& a.getVelocity().y < SLEEP_THRESHOLD && a.getVelocity().y > -SLEEP_THRESHOLD) {
 			if (a.framesStill > FRAMES_STILL_TO_SLEEP) {
@@ -133,8 +140,12 @@ public abstract class World extends DrawingPanel {
 		}
 	}
 
-	public float getHeight() {
+	public int getHeight() {
 		return bounds.height;
+	}
+
+	public int getWidth() {
+		return bounds.width;
 	}
 
 }
