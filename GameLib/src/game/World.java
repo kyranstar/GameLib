@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import physics.PhysicsEntity;
-import physics.collision.Collisions;
+import physics.collision.handling.Collisions;
 import physics.collision.quadtree.Quadtree;
 import physics.constraints.Constraint;
 import draw.DrawingPanel;

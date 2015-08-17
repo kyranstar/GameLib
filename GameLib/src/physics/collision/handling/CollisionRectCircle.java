@@ -1,5 +1,7 @@
-package physics.collision;
+package physics.collision.handling;
 
+import physics.collision.CircleShape;
+import physics.collision.RectShape;
 import game.Vec2D;
 
 class CollisionRectCircle {

@@ -15,9 +15,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import math.AngleUtils;
 import physics.Material;
 import physics.PhysicsEntity;
 import physics.collision.CircleShape;
+import physics.collision.CollisionFilter;
 import physics.collision.RectShape;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
@@ -27,18 +29,47 @@ public class Test extends World {
 
 	public Test(final JPanel panel) {
 		super(60, 120, panel);
+		// ball();
+		collisionFilteringTest();
+	}
 
-		waves();
+	private void collisionFilteringTest() {
+		final int staticGeom = 1 << 0;
 
+		final PhysicsEntity ob = new PhysicsEntity(this);
+		ob.setMaterial(Material.STEEL);
+		ob.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
+		ob.setMass(PhysicsEntity.INFINITE_MASS);
+		ob.collisionFilter = new CollisionFilter(staticGeom, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		entities.add(ob);
+
+		for (int i = 0; i < 5; i++) {
+			final PhysicsEntity ob2 = new PhysicsEntity(this);
+			ob2.setMaterial(Material.STEEL);
+			ob2.shape = new RectShape(new Vec2D(i * 100 + 200, 600), new Vec2D(i * 100 + 250, 700));
+			ob2.setMass(100 * 100);
+			final int filter = 1 << i | staticGeom;
+			ob2.collisionFilter = new CollisionFilter(1 << i, filter, filter);
+			entities.add(ob2);
+		}
+		for (int i = 0; i < 5; i++) {
+			final PhysicsEntity ob2 = new PhysicsEntity(this);
+			ob2.setMaterial(Material.STEEL);
+			ob2.shape = new CircleShape(new Vec2D(i * 100 + 200, 400), 20);
+			ob2.setMass(2 * AngleUtils.PI * 20);
+			final int filter = 1 << i | staticGeom;
+			ob2.collisionFilter = new CollisionFilter(1 << i, filter, filter);
+			entities.add(ob2);
+		}
 	}
 
 	private void waves() {
-		final int parts = 20;
+		final int parts = 30;
 
 		for (int i = 0; i < parts; i++) {
 			final int size = getWidth() / parts;
 			final PhysicsEntity part = new PhysicsEntity(this);
-			part.shape = new RectShape(new Vec2D(i * size, 500), new Vec2D((i + 1) * size - size / 5, 500 + size));
+			part.shape = new RectShape(new Vec2D(i * size, 500), new Vec2D((i + 1) * size - size / 5, 500 + size / 2));
 			part.setMass(size * size / 100f);
 			part.setMaterial(Material.STEEL);
 			constraints.add(new SpringPointConstraint(part, new Vec2D(i * size + size / 2, 900), 0.1f));
@@ -97,6 +128,7 @@ public class Test extends World {
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new CircleShape(center, radius);
 		ob.setMass(radius * radius);
+		ob.setRotationalInertia(1);
 		return ob;
 	}
 
@@ -140,9 +172,13 @@ public class Test extends World {
 				} else {
 					g.setColor(new Color(200, 200, 200));
 				}
-				g.fillRect(x, y, width, height);
+				g.translate(x + width / 2, y + height / 2);
+				g.rotate(object.getOrientation());
+				g.fillRect(-width / 2, -height / 2, width, height);
 				g.setColor(Color.BLACK);
-				g.drawRect(x, y, width, height);
+				g.drawRect(-width / 2, -height / 2, width, height);
+				g.rotate(-object.getOrientation());
+				g.translate(-(x + width / 2), -(y + height / 2));
 			} else if (object.shape instanceof CircleShape) {
 				final int radius = (int) ((CircleShape) object.shape).getRadius();
 				final int x = (int) ((CircleShape) object.shape).getCenter().x - radius;
@@ -152,9 +188,17 @@ public class Test extends World {
 				} else {
 					g.setColor(new Color(200, 200, 200));
 				}
-				g.fillOval(x, y, radius * 2, radius * 2);
+
+				g.translate(x + radius, y + radius);
+				g.rotate(object.getOrientation());
+
+				g.fillOval(-radius, -radius, radius * 2, radius * 2);
 				g.setColor(Color.BLACK);
-				g.drawOval(x, y, radius * 2, radius * 2);
+				g.drawOval(-radius, -radius, radius * 2, radius * 2);
+				g.drawLine(0, 0, radius, 0);
+
+				g.rotate(-object.getOrientation());
+				g.translate(-(x + radius), -(y + radius));
 			}
 		}
 		for (final Constraint c : constraints) {

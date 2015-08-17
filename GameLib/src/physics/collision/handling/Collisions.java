@@ -1,7 +1,10 @@
-package physics.collision;
+package physics.collision.handling;
 
 import game.Vec2D;
 import physics.PhysicsEntity;
+import physics.collision.CShape;
+import physics.collision.CircleShape;
+import physics.collision.RectShape;
 
 /**
  * Holds methods to perform physics operations on GameObjects.
@@ -26,6 +29,9 @@ public final class Collisions {
 	public static boolean isColliding(final PhysicsEntity a, final PhysicsEntity b) {
 		final CShape as = a.shape;
 		final CShape bs = b.shape;
+		if (!a.collisionFilter.shouldCollide(b.collisionFilter)) {
+			return false;
+		}
 
 		if (as instanceof RectShape && bs instanceof RectShape) {
 			return CollisionRectRect.isColliding((RectShape) as, (RectShape) bs);
@@ -73,15 +79,18 @@ public final class Collisions {
 		// Calculate restitution
 		final float e = Math.min(a.getRestitution(), b.getRestitution());
 
-		// Calculate impulse scalar
 		float j = (1 + e) * velAlongNormal;
 		j /= a.getInvMass() + b.getInvMass();
 
 		// Apply impulse
 		final Vec2D impulse = m.getNormal().multiply(j);
 
-		a.applyForce(impulse.multiply(-1));
-		b.applyForce(impulse);
+		if (a.collisionFilter.shouldPhysicsRespond(b.collisionFilter)) {
+			a.applyForce(impulse.multiply(-1));
+		}
+		if (b.collisionFilter.shouldPhysicsRespond(a.collisionFilter)) {
+			b.applyForce(impulse);
+		}
 
 		if (applyFriction) {
 			applyFriction(m, j);
@@ -112,8 +121,12 @@ public final class Collisions {
 				* dynamicFriction);
 
 		// apply friction
-		a.applyForce(frictionImpulse.multiply(-1));
-		b.applyForce(frictionImpulse);
+		if (a.collisionFilter.shouldPhysicsRespond(b.collisionFilter)) {
+			a.applyForce(frictionImpulse.multiply(-1));
+		}
+		if (b.collisionFilter.shouldPhysicsRespond(a.collisionFilter)) {
+			b.applyForce(frictionImpulse);
+		}
 	}
 
 	/**
@@ -163,8 +176,12 @@ public final class Collisions {
 		final float correctionMag = m.getPenetration() > 0 ? Math.max(m.getPenetration() - slop, 0) : Math.min(m.getPenetration() + slop, 0);
 
 		final Vec2D correction = m.getNormal().multiply(correctionMag / (a.getInvMass() + b.getInvMass()) * percent);
-		a.moveRelative(correction.multiply(-1 * a.getInvMass()));
-		b.moveRelative(correction.multiply(b.getInvMass()));
+		if (a.collisionFilter.shouldPhysicsRespond(b.collisionFilter)) {
+			a.moveRelative(correction.multiply(-1 * a.getInvMass()));
+		}
+		if (b.collisionFilter.shouldPhysicsRespond(a.collisionFilter)) {
+			b.moveRelative(correction.multiply(b.getInvMass()));
+		}
 	}
 
 }

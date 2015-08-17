@@ -1,4 +1,4 @@
-package physics.collision;
+package physics.collision.handling;
 
 import game.Vec2D;
 import physics.PhysicsEntity;
@@ -42,7 +42,7 @@ public class CManifold {
 
 	public void setNormal(final Vec2D normal) {
 		assert !normal.equals(Vec2D.ZERO);
-		assert Math.abs(normal.length() - 1) <= 0.01f;
+		assert Math.abs(normal.length()) <= 1.01f : normal.length();
 		this.normal = normal;
 	}
 

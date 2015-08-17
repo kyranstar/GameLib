@@ -2,8 +2,8 @@ package physics.constraints;
 
 import game.Vec2D;
 import physics.PhysicsEntity;
-import physics.collision.CManifold;
-import physics.collision.Collisions;
+import physics.collision.handling.CManifold;
+import physics.collision.handling.Collisions;
 
 public class StringJoint extends Joint {
 	public float distance;

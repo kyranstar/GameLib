@@ -167,4 +167,8 @@ public class Vec2D {
 	public Point2D toPoint() {
 		return new Point2D.Float(x, y);
 	}
+
+	public Vec2D perpendicular() {
+		return new Vec2D(-y, x);
+	}
 }
