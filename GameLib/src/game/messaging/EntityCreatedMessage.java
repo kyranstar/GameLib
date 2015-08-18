@@ -2,7 +2,7 @@ package game.messaging;
 
 import physics.PhysicsEntity;
 
-public class EntityCreatedMessage extends Message {
+public class EntityCreatedMessage implements Message {
 
 	public PhysicsEntity entity;
 

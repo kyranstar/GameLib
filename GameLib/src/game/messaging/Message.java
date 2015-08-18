@@ -1,5 +1,5 @@
 package game.messaging;
 
-public class Message {
+public interface Message {
 
 }

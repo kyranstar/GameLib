@@ -2,7 +2,7 @@ package game.messaging;
 
 import java.awt.Graphics2D;
 
-public class RenderMessage extends Message {
+public class RenderMessage implements Message {
 
 	public Graphics2D graphics;
 

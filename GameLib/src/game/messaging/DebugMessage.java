@@ -1,6 +1,6 @@
 package game.messaging;
 
-public class DebugMessage<T> extends Message {
+public class DebugMessage<T> implements Message {
 	public InfoType type;
 	public T info;
 
