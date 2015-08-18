@@ -1,12 +1,10 @@
 package physics;
 
-import game.Vec2D;
-import game.World;
-
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import math.Vec2D;
 import physics.collision.CShape;
 import physics.collision.CollisionFilter;
 
@@ -37,18 +35,15 @@ public class PhysicsEntity {
 
 	// all entities that we've checked collisions with so far this tick
 	public final Set<PhysicsEntity> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsEntity, Boolean>());
-	private final World world;
 
 	public CollisionFilter collisionFilter = CollisionFilter.ALL_COLLISIONS;
 
-	public PhysicsEntity(final World world) {
-		this.world = world;
+	public PhysicsEntity() {
 	}
 
 	public void update(final float dt) {
 		moveRelative(getVelocity().multiply(dt));
 		shape.rotate(getRadialVelocity() * dt);
-		applyForce(velocity.multiply(-world.AIR_FRICTION * dt));
 	}
 
 	public float getMass() {

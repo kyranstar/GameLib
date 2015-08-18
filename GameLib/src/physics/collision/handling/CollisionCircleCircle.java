@@ -1,7 +1,7 @@
 package physics.collision.handling;
 
+import math.Vec2D;
 import physics.collision.CircleShape;
-import game.Vec2D;
 
 class CollisionCircleCircle {
 

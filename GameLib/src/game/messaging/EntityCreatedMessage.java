@@ -1,0 +1,12 @@
+package game.messaging;
+
+import physics.PhysicsEntity;
+
+public class EntityCreatedMessage extends Message {
+
+	public PhysicsEntity entity;
+
+	public EntityCreatedMessage(final PhysicsEntity e) {
+		entity = e;
+	}
+}

@@ -1,6 +1,6 @@
 package physics.collision.handling;
 
-import game.Vec2D;
+import math.Vec2D;
 import physics.PhysicsEntity;
 import physics.collision.CShape;
 import physics.collision.CircleShape;
@@ -29,7 +29,7 @@ public final class Collisions {
 	public static boolean isColliding(final PhysicsEntity a, final PhysicsEntity b) {
 		final CShape as = a.shape;
 		final CShape bs = b.shape;
-		if (!a.collisionFilter.shouldCollide(b.collisionFilter)) {
+		if (!a.collisionFilter.shouldCollide(b.collisionFilter) && !b.collisionFilter.shouldCollide(a.collisionFilter)) {
 			return false;
 		}
 

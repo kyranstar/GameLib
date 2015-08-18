@@ -9,8 +9,7 @@ public class EntityTest {
 
 	@Test
 	public void testCreation() {
-		final WorldMock world = new WorldMock();
-		final PhysicsEntity e = new PhysicsEntity(world);
+		final PhysicsEntity e = new PhysicsEntity();
 		Assert.assertEquals(null, e.shape);
 		Assert.assertEquals(false, e.sleeping);
 		Assert.assertEquals(0, e.framesStill);
@@ -19,7 +18,7 @@ public class EntityTest {
 	@Test
 	public void testMass() {
 		final WorldMock world = new WorldMock();
-		final PhysicsEntity e = new PhysicsEntity(world);
+		final PhysicsEntity e = new PhysicsEntity();
 
 		e.setMass(10);
 		Assert.assertEquals(1 / 10f, e.getInvMass(), EPSILON);
@@ -33,7 +32,7 @@ public class EntityTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidMass() {
 		final WorldMock world = new WorldMock();
-		final PhysicsEntity e = new PhysicsEntity(world);
+		final PhysicsEntity e = new PhysicsEntity();
 
 		e.setMass(-1);
 	}

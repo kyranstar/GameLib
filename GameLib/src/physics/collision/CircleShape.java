@@ -1,8 +1,8 @@
 package physics.collision;
 
-import game.Vec2D;
-
 import java.awt.geom.Rectangle2D;
+
+import math.Vec2D;
 
 public class CircleShape extends CShape {
 	private Vec2D center;

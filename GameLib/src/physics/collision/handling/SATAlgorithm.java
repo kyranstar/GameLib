@@ -1,6 +1,6 @@
 package physics.collision.handling;
 
-import game.Vec2D;
+import math.Vec2D;
 import physics.collision.PolygonShape;
 
 public final class SATAlgorithm {

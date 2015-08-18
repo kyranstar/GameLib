@@ -1,10 +1,9 @@
 package physics.constraints;
 
-import game.Vec2D;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import math.Vec2D;
 import physics.PhysicsEntity;
 
 public abstract class PointBodyJoint extends Constraint {

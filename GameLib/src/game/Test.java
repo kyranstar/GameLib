@@ -1,21 +1,27 @@
 package game;
 
-import java.awt.Color;
+import game.messaging.ConstraintCreatedMessage;
+import game.messaging.EntityCreatedMessage;
+import game.messaging.RenderMessage;
+
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import draw.RenderSystem;
 import math.AngleUtils;
+import math.Vec2D;
 import physics.Material;
 import physics.PhysicsEntity;
 import physics.collision.CircleShape;
@@ -29,6 +35,7 @@ public class Test extends World {
 
 	public Test(final JPanel panel) {
 		super(60, 120, panel);
+		systemManager.addSystem(new RenderSystem(systemManager, this));
 		// ball();
 		collisionFilteringTest();
 	}
@@ -36,67 +43,69 @@ public class Test extends World {
 	private void collisionFilteringTest() {
 		final int staticGeom = 1 << 0;
 
-		final PhysicsEntity ob = new PhysicsEntity(this);
+		final PhysicsEntity ob = new PhysicsEntity();
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
 		ob.setMass(PhysicsEntity.INFINITE_MASS);
-		ob.collisionFilter = new CollisionFilter(staticGeom, Integer.MAX_VALUE, Integer.MAX_VALUE);
-		entities.add(ob);
+		ob.collisionFilter = new CollisionFilter(staticGeom, 0, 0);
+		addEntity(ob);
 
-		for (int i = 0; i < 5; i++) {
-			final PhysicsEntity ob2 = new PhysicsEntity(this);
+		for (int i = 1; i <= 5; i++) {
+			final PhysicsEntity ob2 = new PhysicsEntity();
 			ob2.setMaterial(Material.STEEL);
 			ob2.shape = new RectShape(new Vec2D(i * 100 + 200, 600), new Vec2D(i * 100 + 250, 700));
 			ob2.setMass(100 * 100);
 			final int filter = 1 << i | staticGeom;
 			ob2.collisionFilter = new CollisionFilter(1 << i, filter, filter);
-			entities.add(ob2);
+			addEntity(ob2);
 		}
-		for (int i = 0; i < 5; i++) {
-			final PhysicsEntity ob2 = new PhysicsEntity(this);
+		for (int i = 1; i <= 5; i++) {
+			final PhysicsEntity ob2 = new PhysicsEntity();
 			ob2.setMaterial(Material.STEEL);
 			ob2.shape = new CircleShape(new Vec2D(i * 100 + 200, 400), 20);
 			ob2.setMass(2 * AngleUtils.PI * 20);
 			final int filter = 1 << i | staticGeom;
 			ob2.collisionFilter = new CollisionFilter(1 << i, filter, filter);
-			entities.add(ob2);
+			addEntity(ob2);
 		}
 	}
 
 	private void waves() {
+
+		final List<PhysicsEntity> entities = new ArrayList<>();
 		final int parts = 30;
 
 		for (int i = 0; i < parts; i++) {
 			final int size = getWidth() / parts;
-			final PhysicsEntity part = new PhysicsEntity(this);
+			final PhysicsEntity part = new PhysicsEntity();
 			part.shape = new RectShape(new Vec2D(i * size, 500), new Vec2D((i + 1) * size - size / 5, 500 + size / 2));
 			part.setMass(size * size / 100f);
 			part.setMaterial(Material.STEEL);
-			constraints.add(new SpringPointConstraint(part, new Vec2D(i * size + size / 2, 900), 0.1f));
+			addConstraint(new SpringPointConstraint(part, new Vec2D(i * size + size / 2, 900), 0.1f));
 			if (i != 0) {
-				constraints.add(new DistanceJoint(part, entities.get(entities.size() - 1)));
+				addConstraint(new DistanceJoint(part, entities.get(entities.size() - 1)));
 			}
 			if (i == 0 || i == parts - 1) {
 				part.setMass(PhysicsEntity.INFINITE_MASS);
 			}
 
-			entities.add(part);
+			addEntity(part);
 		}
 	}
 
 	private void ball() {
-		final PhysicsEntity ob = new PhysicsEntity(this);
+		final PhysicsEntity ob = new PhysicsEntity();
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
 		ob.setMass(PhysicsEntity.INFINITE_MASS);
-		entities.add(ob);
+		addEntity(ob);
 
 		final Vec2D centerV = new Vec2D(500, 700);
 
 		final PhysicsEntity center = createBall(centerV, 75);
 		center.setMaterial(Material.RUBBER);
 		center.setMass(PhysicsEntity.INFINITE_MASS);
-		entities.add(center);
+		addEntity(center);
 
 		final float vertices = 24;
 		final float dist = 120;
@@ -107,13 +116,13 @@ public class Test extends World {
 			final float angle = (float) (2 * Math.PI / vertices * i);
 			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist), (float) (centerV.y + Math.sin(angle) * dist));
 			final PhysicsEntity vertex = createBall(newCenter, 10);
-			entities.add(vertex);
+			addEntity(vertex);
 			if (last != null) {
 				// constraints.add(new SpringJoint(last, vertex, 0.001f));
 			} else {
 				first = vertex;
 			}
-			constraints.add(new DistanceJoint(center, vertex));
+			addConstraint(new DistanceJoint(center, vertex));
 			// constraints.add(new AngleJoint(center, vertex, angle - AngleUtils.PI, AngleUtils.PI / 12));
 			last = vertex;
 			if (i == vertices - 1 && first != null) {
@@ -122,8 +131,16 @@ public class Test extends World {
 		}
 	}
 
+	private void addEntity(final PhysicsEntity e) {
+		systemManager.broadcastMessage(new EntityCreatedMessage(e));
+	}
+
+	private void addConstraint(final Constraint c) {
+		systemManager.broadcastMessage(new ConstraintCreatedMessage(c));
+	}
+
 	private PhysicsEntity createBall(final Vec2D center, final int radius) {
-		final PhysicsEntity ob = new PhysicsEntity(this);
+		final PhysicsEntity ob = new PhysicsEntity();
 
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new CircleShape(center, radius);
@@ -155,77 +172,13 @@ public class Test extends World {
 			if (e.type != MouseEventType.CLICK) {
 				continue;
 			}
-			entities.add(createBall(new Vec2D(e.event.getX(), e.event.getY()), 10));
+			addEntity(createBall(new Vec2D(e.event.getX(), e.event.getY()), 10));
 		}
 	}
 
 	@Override
 	public void draw(final Graphics2D g) {
-		for (final PhysicsEntity object : entities) {
-			if (object.shape instanceof RectShape) {
-				final int x = (int) ((RectShape) object.shape).getMin().x;
-				final int y = (int) ((RectShape) object.shape).getMin().y;
-				final int width = (int) (((RectShape) object.shape).getMax().x - ((RectShape) object.shape).getMin().x);
-				final int height = (int) (((RectShape) object.shape).getMax().y - ((RectShape) object.shape).getMin().y);
-				if (!object.sleeping) {
-					g.setColor(new Color(50, 100, 200));
-				} else {
-					g.setColor(new Color(200, 200, 200));
-				}
-				g.translate(x + width / 2, y + height / 2);
-				g.rotate(object.getOrientation());
-				g.fillRect(-width / 2, -height / 2, width, height);
-				g.setColor(Color.BLACK);
-				g.drawRect(-width / 2, -height / 2, width, height);
-				g.rotate(-object.getOrientation());
-				g.translate(-(x + width / 2), -(y + height / 2));
-			} else if (object.shape instanceof CircleShape) {
-				final int radius = (int) ((CircleShape) object.shape).getRadius();
-				final int x = (int) ((CircleShape) object.shape).getCenter().x - radius;
-				final int y = (int) ((CircleShape) object.shape).getCenter().y - radius;
-				if (!object.sleeping) {
-					g.setColor(new Color(200, 100, 50));
-				} else {
-					g.setColor(new Color(200, 200, 200));
-				}
-
-				g.translate(x + radius, y + radius);
-				g.rotate(object.getOrientation());
-
-				g.fillOval(-radius, -radius, radius * 2, radius * 2);
-				g.setColor(Color.BLACK);
-				g.drawOval(-radius, -radius, radius * 2, radius * 2);
-				g.drawLine(0, 0, radius, 0);
-
-				g.rotate(-object.getOrientation());
-				g.translate(-(x + radius), -(y + radius));
-			}
-		}
-		for (final Constraint c : constraints) {
-			c.draw(g);
-		}
-
-		g.setColor(Color.RED);
-		g.drawString("Entities: " + entities.size(), 10, 15);
-		g.drawString("FPS: " + getCurrentFPS(), 10, 30);
-		g.drawString("UPS: " + getCurrentUPS(), 10, 45);
-		g.drawString("Collision Checks: " + collisionChecksThisTick, 10, 60);
-		g.drawString("Collision Solves: " + collisionSolvesThisTick, 10, 75);
-
-		drawMeter(g);
-		quadtree.draw(g);
-	}
-
-	private void drawMeter(final Graphics g) {
-		final int x = 10;
-		final int top = 90;
-		final int bottom = (int) (top + PIXELS_PER_METER);
-
-		g.setColor(Color.RED);
-		g.drawLine(x, top, x + 10, top);
-		g.drawLine(x, top, x, bottom);
-		g.drawLine(x, bottom, x + 10, bottom);
-		g.drawString("1 meter", x + 10, (top + bottom) / 2);
+		systemManager.broadcastMessage(new RenderMessage(g));
 	}
 
 	int i = 0;

@@ -1,7 +1,7 @@
 package physics.constraints;
 
-import game.Vec2D;
 import math.AngleUtils;
+import math.Vec2D;
 import physics.PhysicsEntity;
 
 public class AnglePointConstraint extends PointBodyJoint {

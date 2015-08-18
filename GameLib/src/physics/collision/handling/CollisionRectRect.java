@@ -1,9 +1,8 @@
 package physics.collision.handling;
 
-import game.Vec2D;
-
 import java.awt.geom.Rectangle2D;
 
+import math.Vec2D;
 import physics.collision.RectShape;
 
 class CollisionRectRect {

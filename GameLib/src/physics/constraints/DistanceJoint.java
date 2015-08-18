@@ -1,6 +1,6 @@
 package physics.constraints;
 
-import game.Vec2D;
+import math.Vec2D;
 import physics.PhysicsEntity;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;

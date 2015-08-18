@@ -1,6 +1,6 @@
 package physics.collision;
 
-import game.Vec2D;
+import math.Vec2D;
 
 public interface PolygonShape {
 	public Vec2D getVertex(final int vert);
