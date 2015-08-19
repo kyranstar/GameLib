@@ -6,21 +6,25 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import game.entity.GameComponent;
 import math.Vec2D;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.CShape;
 
-public class PhysicsComponent {
+public class PhysicsComponent implements GameComponent {
 	/**
-	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 * A constant representing infinite mass. If
+	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
 
 	public static final float INFINITE_ROT_INERTIA = 0;
 
-	// if the object's velocity was below the sleep threshold for more than FRAMES_STILL_TO_SLEEP frames
+	// if the object's velocity was below the sleep threshold for more than
+	// FRAMES_STILL_TO_SLEEP frames
 	public boolean sleeping;
-	// holds the number of frames this object has been still (below the sleep threshold)
+	// holds the number of frames this object has been still (below the sleep
+	// threshold)
 	public int framesStill;
 
 	private float invMass;
@@ -34,7 +38,8 @@ public class PhysicsComponent {
 	public CShape shape;
 
 	// all entities that we've checked collisions with so far this tick
-	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
+	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections
+			.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
 
 	public CollisionFilter collisionFilter = CollisionFilter.ALL_COLLISIONS;
 
@@ -69,7 +74,8 @@ public class PhysicsComponent {
 	public void applyForce(final Vec2D force, final Vec2D contactVector) {
 		setVelocity(getVelocity().plus(force.multiply(invMass)));
 		radialVelocity += getInvRotInertia() * contactVector.perpendicular().dotProduct(getVelocity());
-		// radialVelocity += getInvRotInertia() * contactVector.crossProduct(force);
+		// radialVelocity += getInvRotInertia() *
+		// contactVector.crossProduct(force);
 	}
 
 	public void applyForce(final Vec2D force) {
@@ -143,7 +149,8 @@ public class PhysicsComponent {
 	}
 
 	/**
-	 * A debug method that returns all missing attributes for this entity to work properly
+	 * A debug method that returns all missing attributes for this entity to
+	 * work properly
 	 *
 	 * @return a list of missing attributes
 	 */
@@ -160,5 +167,10 @@ public class PhysicsComponent {
 		}
 
 		return missingAttributes;
+	}
+
+	@Override
+	public int getComponentId() {
+		return 1;
 	}
 }

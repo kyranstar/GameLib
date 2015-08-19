@@ -1,4 +1,4 @@
-package physics;
+package game;
 
 import game.messaging.CreateEntityMessage;
 import game.messaging.GameSystemManager;
@@ -6,6 +6,8 @@ import game.messaging.GameSystemManager;
 import org.junit.Assert;
 import org.junit.Test;
 
+import physics.Material;
+import physics.PhysicsComponent;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.RectShape;
 

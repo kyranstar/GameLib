@@ -1,4 +1,4 @@
-package physics;
+package game;
 
 import game.GameSystem;
 import game.World;
