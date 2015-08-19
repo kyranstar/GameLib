@@ -1,5 +1,9 @@
 package physics;
 
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
+
 import game.GameSystem;
 import game.messaging.CreateConstraintMessage;
 import game.messaging.CreateEntityMessage;
@@ -8,11 +12,6 @@ import game.messaging.DebugMessage.InfoType;
 import game.messaging.GameSystemManager;
 import game.messaging.Message;
 import game.messaging.UpdateMessage;
-
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-
 import math.Vec2D;
 import physics.collision.Quadtree;
 import physics.collision.handling.Collisions;
@@ -24,11 +23,12 @@ public class PhysicsSystem extends GameSystem {
 	/**
 	 * The velocity the object has to be below to be considered still
 	 */
-	public static final float SLEEP_THRESHOLD = 2f;
+	public static final float SLEEP_THRESHOLD = 5f;
 	/**
-	 * The consecutive amount of frames the object has to be still to be considered sleeping
+	 * The consecutive amount of frames the object has to be still to be
+	 * considered sleeping
 	 */
-	public static final int FRAMES_STILL_TO_SLEEP = 25;
+	public static final int FRAMES_STILL_TO_SLEEP = 65;
 	public static final boolean SLEEPING_ENABLED = true;
 	public static final float AIR_FRICTION = 25;
 
@@ -68,6 +68,10 @@ public class PhysicsSystem extends GameSystem {
 		for (int i = 0; i < entities.size(); i++) {
 			final PhysicsComponent a = entities.get(i);
 
+			if (SLEEPING_ENABLED) {
+				checkSleep(a);
+			}
+
 			collidableObjects.clear();
 			quadtree.retrieve(collidableObjects, a);
 
@@ -91,10 +95,6 @@ public class PhysicsSystem extends GameSystem {
 					collisionSolvesThisTick++;
 
 					Collisions.fixCollision(a, b);
-					if (SLEEPING_ENABLED) {
-						checkSleep(a);
-						checkSleep(b);
-					}
 				}
 				a.checkedCollisionThisTick.add(b);
 				b.checkedCollisionThisTick.add(a);
@@ -104,27 +104,31 @@ public class PhysicsSystem extends GameSystem {
 			c.update();
 		}
 		for (final PhysicsComponent e : entities) {
-			e.update(dt);
+			if (!e.sleeping) {
+				e.update(dt);
+			}
 			e.checkedCollisionThisTick.clear();
 
 			if (SLEEPING_ENABLED) {
 				checkSleep(e);
 			}
 		}
-		systemManager.broadcastMessage(new DebugMessage<Integer>(InfoType.COLLISION_CHECKS_THIS_TICK, collisionChecksThisTick));
-		systemManager.broadcastMessage(new DebugMessage<Integer>(InfoType.COLLISION_SOLVES_THIS_TICK, collisionSolvesThisTick));
+		systemManager.broadcastMessage(
+				new DebugMessage<Integer>(InfoType.COLLISION_CHECKS_THIS_TICK, collisionChecksThisTick));
+		systemManager.broadcastMessage(
+				new DebugMessage<Integer>(InfoType.COLLISION_SOLVES_THIS_TICK, collisionSolvesThisTick));
 	}
 
 	private void checkSleep(final PhysicsComponent a) {
 		if (a.getVelocity().x < SLEEP_THRESHOLD && a.getVelocity().x > -SLEEP_THRESHOLD //
 				&& a.getVelocity().y < SLEEP_THRESHOLD && a.getVelocity().y > -SLEEP_THRESHOLD) {
 			if (a.sleeping) {
+				a.framesStill = 0;
 				return;
 			}
 			if (a.framesStill > FRAMES_STILL_TO_SLEEP) {
 				a.sleeping = true;
 				a.framesStill = 0;
-				a.setVelocity(Vec2D.ZERO);
 			} else {
 				a.framesStill++;
 			}

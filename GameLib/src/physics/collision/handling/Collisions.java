@@ -29,7 +29,8 @@ public final class Collisions {
 	public static boolean isColliding(final PhysicsComponent a, final PhysicsComponent b) {
 		final CShape as = a.shape;
 		final CShape bs = b.shape;
-		if (!a.collisionFilter.shouldCollide(b.collisionFilter) && !b.collisionFilter.shouldCollide(a.collisionFilter)) {
+		if (!a.collisionFilter.shouldCollide(b.collisionFilter)
+				&& !b.collisionFilter.shouldCollide(a.collisionFilter)) {
 			return false;
 		}
 
@@ -58,14 +59,15 @@ public final class Collisions {
 	}
 
 	/**
-	 * Fixes a collision between two objects by correcting their positions and applying impulses.
+	 * Fixes a collision between two objects by correcting their positions and
+	 * applying impulses.
 	 *
 	 */
 	public static void fixCollision(final CManifold m, final boolean applyFriction) {
 		fixCollision(m, applyFriction, Math.min(m.a.getRestitution(), m.b.getRestitution()));
 	}
 
-	private static void fixCollision(final CManifold m, final boolean applyFriction, final float restitution) {
+	public static void fixCollision(final CManifold m, final boolean applyFriction, final float restitution) {
 		final PhysicsComponent a = m.a;
 		final PhysicsComponent b = m.b;
 		// Calculate relative velocity
@@ -115,8 +117,8 @@ public final class Collisions {
 		final float dynamicFriction = (a.getDynamicFriction() + b.getDynamicFriction()) / 2;
 
 		// Coulomb's law: force of friction <= force along normal * mu
-		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt) : tangent.multiply(-normalMagnitude
-				* dynamicFriction);
+		final Vec2D frictionImpulse = Math.abs(jt) < normalMagnitude * mu ? tangent.multiply(jt)
+				: tangent.multiply(-normalMagnitude * dynamicFriction);
 
 		// apply friction
 		if (a.collisionFilter.shouldPhysicsRespond(b.collisionFilter)) {
@@ -157,7 +159,8 @@ public final class Collisions {
 	}
 
 	/**
-	 * Corrects positions a certain amount between two colliding objects to avoid "sinking" of one object into another.
+	 * Corrects positions a certain amount between two colliding objects to
+	 * avoid "sinking" of one object into another.
 	 *
 	 * @param m
 	 */
@@ -171,7 +174,8 @@ public final class Collisions {
 		// objects.
 		final float slop = 0.01f; // usually 0.01 to 0.1
 
-		final float correctionMag = m.getPenetration() > 0 ? Math.max(m.getPenetration() - slop, 0) : Math.min(m.getPenetration() + slop, 0);
+		final float correctionMag = m.getPenetration() > 0 ? Math.max(m.getPenetration() - slop, 0)
+				: Math.min(m.getPenetration() + slop, 0);
 
 		final Vec2D correction = m.getNormal().multiply(correctionMag / (a.getInvMass() + b.getInvMass()) * percent);
 		if (a.collisionFilter.shouldPhysicsRespond(b.collisionFilter)) {

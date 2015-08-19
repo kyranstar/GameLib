@@ -28,7 +28,7 @@ public class DistanceJoint extends Joint {
 		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
-		if (Math.abs(d - distance) < 10e-8) {
+		if (Math.abs(d - distance) < 10e-6) {
 			// we don't need to do anything
 			return;
 		}
