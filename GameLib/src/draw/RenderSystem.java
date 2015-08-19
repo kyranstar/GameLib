@@ -35,6 +35,8 @@ public class RenderSystem extends GameSystem {
 	}
 
 	private void render(final Graphics2D g) {
+		GraphicsUtils.prettyGraphics(g);
+
 		for (final PhysicsEntity object : entities) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).getMin().x;

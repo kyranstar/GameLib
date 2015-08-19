@@ -4,9 +4,8 @@ import game.messaging.GameSystemManager;
 import game.messaging.UpdateMessage;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
-
-import javax.swing.JPanel;
 
 import physics.PhysicsSystem;
 import draw.DrawingPanel;
@@ -14,18 +13,12 @@ import draw.DrawingPanel;
 public abstract class World extends DrawingPanel {
 
 	protected GameSystemManager systemManager = new GameSystemManager();
-	private final Rectangle bounds;
+	private final Dimension bounds;
 
-	public World(final int fps, final int ups, final JPanel panel) {
-		super(fps, ups, panel, Color.WHITE);
-		bounds = panel.getBounds();
-		systemManager.addSystem(new PhysicsSystem(systemManager, panel.getBounds()));
-	}
-
-	public World(final int ups, final JPanel panel) {
-		super(ups, panel, Color.WHITE);
-		bounds = panel.getBounds();
-		systemManager.addSystem(new PhysicsSystem(systemManager, panel.getBounds()));
+	public World(final int fps, final int ups, final Dimension bounds) {
+		super(fps, ups, Color.WHITE, new Dimension((int) bounds.getWidth(), (int) bounds.getHeight()));
+		this.bounds = bounds;
+		systemManager.addSystem(new PhysicsSystem(systemManager, new Rectangle(0, 0, bounds.width, bounds.height)));
 	}
 
 	@Override

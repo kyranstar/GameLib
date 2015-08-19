@@ -84,7 +84,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 			accumulator -= targetDT;
 		}
 		final long timeBeforeDraw = System.currentTimeMillis();
-		draw();
+		draw(targetDrawTime);
 		currentFPS++;
 		final float counterelapsed = System.nanoTime() - counterstart;
 
@@ -143,7 +143,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 	public abstract void update(float dt);
 
-	public abstract void draw();
+	public abstract void draw(int targetDrawTime);
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {

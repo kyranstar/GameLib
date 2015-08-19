@@ -2,24 +2,17 @@ package physics;
 
 import game.World;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.Queue;
 
-import javax.swing.JPanel;
-
 public class WorldMock extends World {
 
-	public static JPanel panel;
-	static {
-		panel = new JPanel();
-		panel.setSize(500, 500);
-	}
-
 	public WorldMock() {
-		super(60, 60, panel);
+		super(60, 60, new Dimension(500, 500));
 	}
 
 	public void runFrames(final int steps) {

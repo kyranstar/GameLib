@@ -15,11 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import draw.RenderSystem;
 import math.AngleUtils;
 import math.Vec2D;
 import physics.Material;
@@ -30,11 +25,12 @@ import physics.collision.RectShape;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
 import physics.constraints.SpringPointConstraint;
+import draw.RenderSystem;
 
 public class Test extends World {
 
-	public Test(final JPanel panel) {
-		super(60, 120, panel);
+	public Test(final Dimension bounds) {
+		super(60, 120, bounds);
 		systemManager.addSystem(new RenderSystem(systemManager, this));
 		// ball();
 		collisionFilteringTest();
@@ -150,18 +146,7 @@ public class Test extends World {
 	}
 
 	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
-		final JPanel panel = new JPanel();
-
-		SwingUtilities.invokeAndWait(() -> {
-			final JFrame frame = new JFrame();
-			panel.setPreferredSize(new Dimension(1000, 1000));
-			frame.add(panel);
-
-			frame.pack();
-			frame.setVisible(true);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		});
-		new Test(panel).run();
+		new Test(new Dimension(1000, 1000)).run();
 
 	}
 
