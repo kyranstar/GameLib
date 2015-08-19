@@ -17,7 +17,7 @@ public class AngleJoint extends Joint {
 	 * @param a
 	 * @param b
 	 * @param midAngle
-	 *            the angle in the range of -Pi to Pi.
+	 *            the angle in the range of 0 to 2*Pi.
 	 * @param tolerance
 	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
 	 */
@@ -46,19 +46,21 @@ public class AngleJoint extends Joint {
 			// we don't need to do anything
 			return;
 		}
-		// if we are in that dumb spot where maxAngle < min Angle (directly to the left) we need extra checks
-		if (maxAngle < minAngle && (angle <= maxAngle && angle >= -AngleUtils.PI || angle >= minAngle && angle <= AngleUtils.PI)) {
+		// if we are in that dumb spot where maxAngle < min Angle (directly to
+		// the left) we need extra checks
+		if (maxAngle < minAngle
+				&& (angle <= maxAngle && angle >= -AngleUtils.PI || angle >= minAngle && angle <= AngleUtils.PI)) {
 			return;
 		}
 
 		final float distBtoA = aToB.length();
 
-		final float closestAngleBound = AngleUtils.angleDifference(angle, maxAngle) < AngleUtils.angleDifference(angle, minAngle) ? maxAngle
-				: minAngle;
+		final float closestAngleBound = AngleUtils.angleDifference(angle, maxAngle) < AngleUtils.angleDifference(angle,
+				minAngle) ? maxAngle : minAngle;
 
 		// where we should be
-		final Vec2D solvedLocation = getA().center().plus(
-				new Vec2D((float) (Math.cos(closestAngleBound) * distBtoA), (float) (Math.sin(closestAngleBound) * distBtoA)));
+		final Vec2D solvedLocation = getA().center().plus(new Vec2D((float) (Math.cos(closestAngleBound) * distBtoA),
+				(float) (Math.sin(closestAngleBound) * distBtoA)));
 		final Vec2D correction = solvedLocation.minus(getB().center());
 		final float d = correction.length();
 

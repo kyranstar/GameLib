@@ -1,9 +1,5 @@
 package game;
 
-import game.messaging.CreateConstraintMessage;
-import game.messaging.CreateEntityMessage;
-import game.messaging.RenderMessage;
-
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
@@ -15,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import draw.RenderSystem;
+import game.messaging.CreateConstraintMessage;
+import game.messaging.CreateEntityMessage;
+import game.messaging.RenderMessage;
 import math.AngleUtils;
 import math.Vec2D;
 import physics.Material;
@@ -22,11 +22,10 @@ import physics.PhysicsComponent;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.CircleShape;
 import physics.collision.shape.RectShape;
+import physics.constraints.AngleJoint;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
-import physics.constraints.SpringJoint;
 import physics.constraints.SpringPointConstraint;
-import draw.RenderSystem;
 
 public class Test extends World {
 
@@ -111,18 +110,20 @@ public class Test extends World {
 		PhysicsComponent last = null;
 		for (int i = 0; i < vertices; i++) {
 			final float angle = (float) (2 * Math.PI / vertices * i);
-			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist), (float) (centerV.y + Math.sin(angle) * dist));
+			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist),
+					(float) (centerV.y + Math.sin(angle) * dist));
 			final PhysicsComponent vertex = createBall(newCenter, 10);
 			addEntity(vertex);
 			if (last != null) {
-				addConstraint(new SpringJoint(last, vertex, 0.001f));
+				// addConstraint(new SpringJoint(last, vertex, 0.001f));
 			} else {
 				first = vertex;
 			}
 			addConstraint(new DistanceJoint(center, vertex));
+			addConstraint(new AngleJoint(center, vertex, angle, 0.15f));
 			last = vertex;
 			if (i == vertices - 1 && first != null) {
-				addConstraint(new SpringJoint(first, vertex, 0.001f));
+				// addConstraint(new SpringJoint(first, vertex, 0.001f));
 			}
 		}
 	}
@@ -145,13 +146,15 @@ public class Test extends World {
 		return ob;
 	}
 
-	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
+	public static void main(final String[] args)
+			throws HeadlessException, InvocationTargetException, InterruptedException {
 		new Test(new Dimension(1000, 1000)).createFrame().run();
 
 	}
 
 	@Override
-	public void processInput(final Queue<KeyEvent> keyEvents, final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
+	public void processInput(final Queue<KeyEvent> keyEvents,
+			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
 			final Queue<MouseWheelEvent> mouseWheelEvents2) {
 		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
 			if (e.type != MouseEventType.CLICK) {
