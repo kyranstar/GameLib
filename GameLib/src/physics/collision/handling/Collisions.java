@@ -1,10 +1,10 @@
 package physics.collision.handling;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
-import physics.collision.CShape;
-import physics.collision.CircleShape;
-import physics.collision.RectShape;
+import physics.PhysicsComponent;
+import physics.collision.shape.CShape;
+import physics.collision.shape.CircleShape;
+import physics.collision.shape.RectShape;
 
 /**
  * Holds methods to perform physics operations on GameObjects.
@@ -26,7 +26,7 @@ public final class Collisions {
 	 *            must be a RectObject or CircleObject
 	 * @return
 	 */
-	public static boolean isColliding(final PhysicsEntity a, final PhysicsEntity b) {
+	public static boolean isColliding(final PhysicsComponent a, final PhysicsComponent b) {
 		final CShape as = a.shape;
 		final CShape bs = b.shape;
 		if (!a.collisionFilter.shouldCollide(b.collisionFilter) && !b.collisionFilter.shouldCollide(a.collisionFilter)) {
@@ -49,11 +49,11 @@ public final class Collisions {
 		throw new UnsupportedOperationException();
 	}
 
-	public static void fixCollision(final PhysicsEntity a, final PhysicsEntity b) {
+	public static void fixCollision(final PhysicsComponent a, final PhysicsComponent b) {
 		fixCollision(generateManifold(a, b), true);
 	}
 
-	public static void fixCollision(final PhysicsEntity a, final PhysicsEntity b, final float restitution) {
+	public static void fixCollision(final PhysicsComponent a, final PhysicsComponent b, final float restitution) {
 		fixCollision(generateManifold(a, b), true, restitution);
 	}
 
@@ -66,8 +66,8 @@ public final class Collisions {
 	}
 
 	private static void fixCollision(final CManifold m, final boolean applyFriction, final float restitution) {
-		final PhysicsEntity a = m.a;
-		final PhysicsEntity b = m.b;
+		final PhysicsComponent a = m.a;
+		final PhysicsComponent b = m.b;
 		// Calculate relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 
@@ -97,13 +97,11 @@ public final class Collisions {
 		}
 
 		positionalCorrection(m);
-
-		m.a.sleeping = m.b.sleeping = false;
 	}
 
 	private static void applyFriction(final CManifold m, final float normalMagnitude) {
-		final PhysicsEntity a = m.a;
-		final PhysicsEntity b = m.b;
+		final PhysicsComponent a = m.a;
+		final PhysicsComponent b = m.b;
 
 		// relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
@@ -136,7 +134,7 @@ public final class Collisions {
 	 * @param b
 	 * @return
 	 */
-	private static CManifold generateManifold(final PhysicsEntity a, final PhysicsEntity b) {
+	private static CManifold generateManifold(final PhysicsComponent a, final PhysicsComponent b) {
 		final CManifold m = new CManifold();
 		m.a = a;
 		m.b = b;
@@ -164,8 +162,8 @@ public final class Collisions {
 	 * @param m
 	 */
 	private static void positionalCorrection(final CManifold m) {
-		final PhysicsEntity a = m.a;
-		final PhysicsEntity b = m.b;
+		final PhysicsComponent a = m.a;
+		final PhysicsComponent b = m.b;
 
 		// the amount to correct by
 		final float percent = .4f; // usually .2 to .8

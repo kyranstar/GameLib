@@ -1,14 +1,16 @@
 package physics;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
 
 import math.Vec2D;
-import physics.collision.CShape;
 import physics.collision.CollisionFilter;
+import physics.collision.shape.CShape;
 
-public class PhysicsEntity {
+public class PhysicsComponent {
 	/**
 	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
@@ -27,19 +29,14 @@ public class PhysicsEntity {
 
 	private float radialVelocity;
 
-	private float restitution;
-	private float staticFriction;
-	private float dynamicFriction;
+	private Material material;
 
 	public CShape shape;
 
 	// all entities that we've checked collisions with so far this tick
-	public final Set<PhysicsEntity> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsEntity, Boolean>());
+	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
 
 	public CollisionFilter collisionFilter = CollisionFilter.ALL_COLLISIONS;
-
-	public PhysicsEntity() {
-	}
 
 	public void update(final float dt) {
 		moveRelative(getVelocity().multiply(dt));
@@ -88,21 +85,22 @@ public class PhysicsEntity {
 	}
 
 	public float getRestitution() {
-		return restitution;
+		return material.restitution;
 	}
 
 	public void setMaterial(final Material m) {
-		dynamicFriction = m.dynamicFriction;
-		staticFriction = m.staticFriction;
-		restitution = m.restitution;
+		if (m == null) {
+			throw new NullPointerException("Material cannot be null");
+		}
+		material = m;
 	}
 
 	public float getDynamicFriction() {
-		return dynamicFriction;
+		return material.dynamicFriction;
 	}
 
 	public float getStaticFriction() {
-		return staticFriction;
+		return material.staticFriction;
 	}
 
 	public Vec2D getVelocity() {
@@ -110,6 +108,9 @@ public class PhysicsEntity {
 	}
 
 	public void setVelocity(final Vec2D velocity) {
+		if (velocity == null) {
+			throw new NullPointerException("Velocity cannot be null");
+		}
 		this.velocity = velocity;
 	}
 
@@ -130,10 +131,34 @@ public class PhysicsEntity {
 	}
 
 	public void setRotationalInertia(final float i) {
-		if (i == PhysicsEntity.INFINITE_ROT_INERTIA) {
+		if (i == PhysicsComponent.INFINITE_ROT_INERTIA) {
 			invRotInertia = 0;
 		} else {
 			invRotInertia = 1f / i;
 		}
+	}
+
+	public boolean isFullyConstructed() {
+		return getMissingAttributes().isEmpty();
+	}
+
+	/**
+	 * A debug method that returns all missing attributes for this entity to work properly
+	 *
+	 * @return a list of missing attributes
+	 */
+	public List<String> getMissingAttributes() {
+		final List<String> missingAttributes = new ArrayList<>();
+		if (material == null) {
+			missingAttributes.add("Material");
+		}
+		if (shape == null) {
+			missingAttributes.add("Shape");
+		}
+		if (collisionFilter == null) {
+			missingAttributes.add("collisionFilter");
+		}
+
+		return missingAttributes;
 	}
 }

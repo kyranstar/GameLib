@@ -2,9 +2,9 @@ package draw;
 
 import game.GameSystem;
 import game.World;
-import game.messaging.ConstraintCreatedMessage;
+import game.messaging.CreateConstraintMessage;
+import game.messaging.CreateEntityMessage;
 import game.messaging.DebugMessage;
-import game.messaging.EntityCreatedMessage;
 import game.messaging.GameSystemManager;
 import game.messaging.Message;
 import game.messaging.RenderMessage;
@@ -15,15 +15,15 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 import physics.PhysicsSystem;
-import physics.collision.CircleShape;
-import physics.collision.RectShape;
+import physics.collision.shape.CircleShape;
+import physics.collision.shape.RectShape;
 import physics.constraints.Constraint;
 
 public class RenderSystem extends GameSystem {
 
-	protected final List<PhysicsEntity> entities = new ArrayList<>();
+	protected final List<PhysicsComponent> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
 	private final World world;
 	private int collisionChecksThisTick;
@@ -37,7 +37,7 @@ public class RenderSystem extends GameSystem {
 	private void render(final Graphics2D g) {
 		GraphicsUtils.prettyGraphics(g);
 
-		for (final PhysicsEntity object : entities) {
+		for (final PhysicsComponent object : entities) {
 			if (object.shape instanceof RectShape) {
 				final int x = (int) ((RectShape) object.shape).getMin().x;
 				final int y = (int) ((RectShape) object.shape).getMin().y;
@@ -57,8 +57,8 @@ public class RenderSystem extends GameSystem {
 				g.translate(-(x + width / 2), -(y + height / 2));
 			} else if (object.shape instanceof CircleShape) {
 				final int radius = (int) ((CircleShape) object.shape).getRadius();
-				final int x = (int) ((CircleShape) object.shape).getCenter().x - radius;
-				final int y = (int) ((CircleShape) object.shape).getCenter().y - radius;
+				final int x = (int) ((CircleShape) object.shape).center().x - radius;
+				final int y = (int) ((CircleShape) object.shape).center().y - radius;
 				if (!object.sleeping) {
 					g.setColor(new Color(200, 100, 50));
 				} else {
@@ -105,10 +105,10 @@ public class RenderSystem extends GameSystem {
 
 	@Override
 	public void recieveMessage(final Message m) {
-		if (m instanceof EntityCreatedMessage) {
-			entities.add(((EntityCreatedMessage) m).entity);
-		} else if (m instanceof ConstraintCreatedMessage) {
-			constraints.add(((ConstraintCreatedMessage) m).constraint);
+		if (m instanceof CreateEntityMessage) {
+			entities.add(((CreateEntityMessage) m).entity);
+		} else if (m instanceof CreateConstraintMessage) {
+			constraints.add(((CreateConstraintMessage) m).constraint);
 		} else if (m instanceof RenderMessage) {
 			render(((RenderMessage) m).graphics);
 		} else if (m instanceof DebugMessage) {

@@ -1,4 +1,4 @@
-package physics.collision;
+package physics.collision.shape;
 
 import java.awt.geom.Rectangle2D;
 
@@ -12,13 +12,20 @@ public class CircleShape extends CShape {
 	private Rectangle2D rect;
 
 	public CircleShape(final Vec2D center, final float radius) {
+		if (center == null) {
+			throw new NullPointerException("Center cannot be null");
+		}
+		if (radius <= 0 || Float.isInfinite(radius) || Float.isNaN(radius)) {
+			throw new IllegalArgumentException("Radius must be >= 0, finite, and cannot be NaN. Was: " + radius);
+		}
+
 		this.center = center;
 		this.radius = radius;
 	}
 
 	@Override
 	public Vec2D center() {
-		return getCenter();
+		return center;
 	}
 
 	@Override
@@ -30,7 +37,7 @@ public class CircleShape extends CShape {
 	@Override
 	public Rectangle2D getRect() {
 		if (rect == null) {
-			rect = new Rectangle2D.Float(getCenter().x - getRadius(), getCenter().y - getRadius(), getRadius() * 2, getRadius() * 2);
+			rect = new Rectangle2D.Float(center.x - getRadius(), center.y - getRadius(), getRadius() * 2, getRadius() * 2);
 		}
 
 		return rect;
@@ -38,9 +45,5 @@ public class CircleShape extends CShape {
 
 	public float getRadius() {
 		return radius;
-	}
-
-	public Vec2D getCenter() {
-		return center;
 	}
 }

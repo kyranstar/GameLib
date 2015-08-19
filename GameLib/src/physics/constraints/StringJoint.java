@@ -1,19 +1,19 @@
 package physics.constraints;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;
 
 public class StringJoint extends Joint {
 	public float distance;
 
-	public StringJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance) {
+	public StringJoint(final PhysicsComponent a, final PhysicsComponent b, final float distance) {
 		super(a, b);
 		this.distance = distance;
 	}
 
-	public StringJoint(final PhysicsEntity a, final PhysicsEntity b) {
+	public StringJoint(final PhysicsComponent a, final PhysicsComponent b) {
 		this(a, b, a.center().minus(b.center()).length());
 	}
 

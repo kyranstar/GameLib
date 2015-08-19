@@ -1,19 +1,19 @@
 package physics.constraints;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;
 
 public class DistanceJoint extends Joint {
 	public float distance;
 
-	public DistanceJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance) {
+	public DistanceJoint(final PhysicsComponent a, final PhysicsComponent b, final float distance) {
 		super(a, b);
 		this.distance = distance;
 	}
 
-	public DistanceJoint(final PhysicsEntity a, final PhysicsEntity b) {
+	public DistanceJoint(final PhysicsComponent a, final PhysicsComponent b) {
 		this(a, b, a.center().minus(b.center()).length());
 	}
 
@@ -28,7 +28,7 @@ public class DistanceJoint extends Joint {
 		final Vec2D n = getA().center().minus(getB().center());
 
 		final float d = n.length();
-		if (d == distance) {
+		if (Math.abs(d - distance) < 10e-8) {
 			// we don't need to do anything
 			return;
 		}

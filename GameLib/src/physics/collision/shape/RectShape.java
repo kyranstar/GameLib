@@ -1,4 +1,4 @@
-package physics.collision;
+package physics.collision.shape;
 
 import java.awt.geom.Rectangle2D;
 
@@ -13,8 +13,16 @@ public class RectShape extends CShape implements PolygonShape {
 	private Rectangle2D rect;
 
 	public RectShape(final Vec2D min, final Vec2D max) {
+		if (min == null || max == null) {
+			throw new NullPointerException("Min cannot be null, was: " + min + ". Max cannot be null, was: " + max);
+		}
+
 		this.min = min;
 		this.max = max;
+	}
+
+	public RectShape(final float x1, final float y1, final float x2, final float y2) {
+		this(new Vec2D(x1, y1), new Vec2D(x2, y2));
 	}
 
 	@Override

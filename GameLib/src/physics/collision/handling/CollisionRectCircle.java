@@ -1,8 +1,8 @@
 package physics.collision.handling;
 
 import math.Vec2D;
-import physics.collision.CircleShape;
-import physics.collision.RectShape;
+import physics.collision.shape.CircleShape;
+import physics.collision.shape.RectShape;
 
 class CollisionRectCircle {
 	public static boolean isColliding(final RectShape a, final CircleShape b) {

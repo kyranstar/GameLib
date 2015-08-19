@@ -1,18 +1,18 @@
 package physics.constraints;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 
 public class SpringPointConstraint extends PointBodyJoint {
 
 	private final float restitution;
 	private final float distance;
 
-	public SpringPointConstraint(final PhysicsEntity object, final Vec2D point, final float restitution) {
+	public SpringPointConstraint(final PhysicsComponent object, final Vec2D point, final float restitution) {
 		this(object, point, point.minus(object.center()).length(), restitution);
 	}
 
-	public SpringPointConstraint(final PhysicsEntity object, final Vec2D point, final float distance, final float restitution) {
+	public SpringPointConstraint(final PhysicsComponent object, final Vec2D point, final float distance, final float restitution) {
 		super(object, point);
 		this.restitution = restitution;
 		this.distance = distance;

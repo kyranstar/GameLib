@@ -2,6 +2,7 @@ package math;
 
 public final class AngleUtils {
 	public static final float PI = (float) Math.PI;
+	public static final float TWO_PI = PI * 2;
 
 	private AngleUtils() {
 	}
@@ -32,9 +33,9 @@ public final class AngleUtils {
 	 *
 	 * @param angle
 	 *            angle to be normalized in radians
-	 * @return noramlized angle
+	 * @return -Pi < noramlized angle <= Pi
 	 */
 	public static float normalize(final float angle) {
-		return angle % (2 * PI) + (angle < 0 ? 2 * PI : 0) - PI;
+		return (float) (angle - TWO_PI * Math.floor((angle + Math.PI) / TWO_PI));
 	}
 }

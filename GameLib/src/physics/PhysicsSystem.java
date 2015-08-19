@@ -1,9 +1,10 @@
 package physics;
 
 import game.GameSystem;
+import game.messaging.CreateConstraintMessage;
+import game.messaging.CreateEntityMessage;
 import game.messaging.DebugMessage;
 import game.messaging.DebugMessage.InfoType;
-import game.messaging.EntityCreatedMessage;
 import game.messaging.GameSystemManager;
 import game.messaging.Message;
 import game.messaging.UpdateMessage;
@@ -13,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import math.Vec2D;
+import physics.collision.Quadtree;
 import physics.collision.handling.Collisions;
-import physics.collision.quadtree.Quadtree;
 import physics.constraints.Constraint;
 
 public class PhysicsSystem extends GameSystem {
@@ -23,32 +24,26 @@ public class PhysicsSystem extends GameSystem {
 	/**
 	 * The velocity the object has to be below to be considered still
 	 */
-	public final float SLEEP_THRESHOLD = 1f;
+	public static final float SLEEP_THRESHOLD = 2f;
 	/**
 	 * The consecutive amount of frames the object has to be still to be considered sleeping
 	 */
-	public final int FRAMES_STILL_TO_SLEEP = 25;
-	public final boolean SLEEPING_ENABLED = true;
-	public final float AIR_FRICTION = 25;
+	public static final int FRAMES_STILL_TO_SLEEP = 25;
+	public static final boolean SLEEPING_ENABLED = true;
+	public static final float AIR_FRICTION = 25;
 
 	// meters per second
 	protected Vec2D gravity = new Vec2D(0, 9.8f);
 	// the number of times to run collision detection and response per frame
-	private static final int COLLISION_ITERATIONS = 3;
-	private final Rectangle bounds;
+	private static final int COLLISION_ITERATIONS = 10;
 
-	protected final List<PhysicsEntity> entities = new ArrayList<>();
+	protected final List<PhysicsComponent> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
 	protected final Quadtree quadtree;
-
-	// debug
-	public int collisionChecksThisTick;
-	public int collisionSolvesThisTick;
 
 	public PhysicsSystem(final GameSystemManager m, final Rectangle bounds) {
 		super(m);
 		quadtree = new Quadtree(bounds);
-		this.bounds = bounds;
 	}
 
 	public void update(final float dt) {
@@ -69,20 +64,20 @@ public class PhysicsSystem extends GameSystem {
 		}
 
 		// possible objects to collide with each object
-		final List<PhysicsEntity> collidableObjects = new ArrayList<>();
+		final List<PhysicsComponent> collidableObjects = new ArrayList<>();
 		for (int i = 0; i < entities.size(); i++) {
-			final PhysicsEntity a = entities.get(i);
+			final PhysicsComponent a = entities.get(i);
 
 			collidableObjects.clear();
 			quadtree.retrieve(collidableObjects, a);
 
-			if (!a.sleeping && a.getMass() != PhysicsEntity.INFINITE_MASS) {
+			if (!a.sleeping && a.getMass() != PhysicsComponent.INFINITE_MASS) {
 				a.applyForce(gravityForce.divide(a.getInvMass()));
 				a.applyForce(a.getVelocity().multiply(-AIR_FRICTION * dt));
 			}
 
 			// check collisions
-			for (final PhysicsEntity b : collidableObjects) {
+			for (final PhysicsComponent b : collidableObjects) {
 				if (b.checkedCollisionThisTick.contains(a) || a.checkedCollisionThisTick.contains(b)) {
 					// don't want to check collisions both ways
 					continue;
@@ -96,7 +91,10 @@ public class PhysicsSystem extends GameSystem {
 					collisionSolvesThisTick++;
 
 					Collisions.fixCollision(a, b);
-					a.sleeping = b.sleeping = false;
+					if (SLEEPING_ENABLED) {
+						checkSleep(a);
+						checkSleep(b);
+					}
 				}
 				a.checkedCollisionThisTick.add(b);
 				b.checkedCollisionThisTick.add(a);
@@ -105,7 +103,7 @@ public class PhysicsSystem extends GameSystem {
 		for (final Constraint c : constraints) {
 			c.update();
 		}
-		for (final PhysicsEntity e : entities) {
+		for (final PhysicsComponent e : entities) {
 			e.update(dt);
 			e.checkedCollisionThisTick.clear();
 
@@ -117,11 +115,15 @@ public class PhysicsSystem extends GameSystem {
 		systemManager.broadcastMessage(new DebugMessage<Integer>(InfoType.COLLISION_SOLVES_THIS_TICK, collisionSolvesThisTick));
 	}
 
-	private void checkSleep(final PhysicsEntity a) {
+	private void checkSleep(final PhysicsComponent a) {
 		if (a.getVelocity().x < SLEEP_THRESHOLD && a.getVelocity().x > -SLEEP_THRESHOLD //
 				&& a.getVelocity().y < SLEEP_THRESHOLD && a.getVelocity().y > -SLEEP_THRESHOLD) {
+			if (a.sleeping) {
+				return;
+			}
 			if (a.framesStill > FRAMES_STILL_TO_SLEEP) {
 				a.sleeping = true;
+				a.framesStill = 0;
 				a.setVelocity(Vec2D.ZERO);
 			} else {
 				a.framesStill++;
@@ -132,18 +134,12 @@ public class PhysicsSystem extends GameSystem {
 		}
 	}
 
-	private void addEntity(final PhysicsEntity e) {
-		entities.add(e);
-	}
-
-	public void addConstraint(final Constraint c) {
-		constraints.add(c);
-	}
-
 	@Override
 	public void recieveMessage(final Message message) {
-		if (message instanceof EntityCreatedMessage) {
-			addEntity(((EntityCreatedMessage) message).entity);
+		if (message instanceof CreateEntityMessage) {
+			entities.add(((CreateEntityMessage) message).entity);
+		} else if (message instanceof CreateConstraintMessage) {
+			constraints.add(((CreateConstraintMessage) message).constraint);
 		} else if (message instanceof UpdateMessage) {
 			update(((UpdateMessage) message).dt);
 		}

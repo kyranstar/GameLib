@@ -1,13 +1,13 @@
 package physics.constraints;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 
 public class SpringJoint extends Joint {
 	public float distance;
 	private final float restitution;
 
-	public SpringJoint(final PhysicsEntity a, final PhysicsEntity b, final float distance, final float restitution) {
+	public SpringJoint(final PhysicsComponent a, final PhysicsComponent b, final float distance, final float restitution) {
 		super(a, b);
 
 		if (restitution == 0.0f) {
@@ -18,7 +18,7 @@ public class SpringJoint extends Joint {
 		this.restitution = restitution;
 	}
 
-	public SpringJoint(final PhysicsEntity a, final PhysicsEntity b, final float restitution) {
+	public SpringJoint(final PhysicsComponent a, final PhysicsComponent b, final float restitution) {
 		this(a, b, a.center().minus(b.center()).length(), restitution);
 	}
 

@@ -3,23 +3,23 @@ package physics.constraints;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 
 public abstract class Joint extends Constraint {
 
-	private final PhysicsEntity a;
-	private final PhysicsEntity b;
+	private final PhysicsComponent a;
+	private final PhysicsComponent b;
 
-	public Joint(final PhysicsEntity a, final PhysicsEntity b) {
+	public Joint(final PhysicsComponent a, final PhysicsComponent b) {
 		this.a = a;
 		this.b = b;
 	}
 
-	public PhysicsEntity getA() {
+	public PhysicsComponent getA() {
 		return a;
 	}
 
-	public PhysicsEntity getB() {
+	public PhysicsComponent getB() {
 		return b;
 	}
 

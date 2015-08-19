@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 public abstract class DrawingPanel extends GameLoop {
 
 	private JPanel panel;
+	private Dimension size;
 
 	public DrawingPanel(final int fps, final int ups, final Color background, final Dimension size) {
 		super(fps, ups);
@@ -48,6 +49,7 @@ public abstract class DrawingPanel extends GameLoop {
 
 	@SuppressWarnings("serial")
 	private void initialize(final Color background, final Dimension size) {
+		this.size = size;
 		panel = new JPanel() {
 			@Override
 			protected void paintComponent(final Graphics g) {
@@ -66,6 +68,11 @@ public abstract class DrawingPanel extends GameLoop {
 		panel.setFocusable(true);
 		panel.requestFocusInWindow();
 
+	}
+
+	public abstract void draw(Graphics2D g);
+
+	public DrawingPanel createFrame() {
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				final JFrame frame = new JFrame();
@@ -79,8 +86,7 @@ public abstract class DrawingPanel extends GameLoop {
 		} catch (HeadlessException | InvocationTargetException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		return this;
 	}
-
-	public abstract void draw(Graphics2D g);
 
 }

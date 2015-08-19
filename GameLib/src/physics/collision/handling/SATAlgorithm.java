@@ -1,7 +1,7 @@
 package physics.collision.handling;
 
 import math.Vec2D;
-import physics.collision.PolygonShape;
+import physics.collision.shape.PolygonShape;
 
 public final class SATAlgorithm {
 	private SATAlgorithm() {

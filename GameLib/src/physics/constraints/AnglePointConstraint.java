@@ -2,7 +2,7 @@ package physics.constraints;
 
 import math.AngleUtils;
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 
 public class AnglePointConstraint extends PointBodyJoint {
 
@@ -19,7 +19,7 @@ public class AnglePointConstraint extends PointBodyJoint {
 	 * @param tolerance
 	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
 	 */
-	public AnglePointConstraint(final PhysicsEntity a, final Vec2D point, final float midAngle, final float tolerance) {
+	public AnglePointConstraint(final PhysicsComponent a, final Vec2D point, final float midAngle, final float tolerance) {
 		super(a, point);
 		if (tolerance < 0 || tolerance >= AngleUtils.PI) {
 			throw new IllegalArgumentException("Tolerance must be >= 0 and < Pi");

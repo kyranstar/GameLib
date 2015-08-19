@@ -1,4 +1,4 @@
-package physics.collision;
+package physics.collision.shape;
 
 import java.awt.geom.Rectangle2D;
 

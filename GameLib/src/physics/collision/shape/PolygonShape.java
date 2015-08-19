@@ -1,4 +1,4 @@
-package physics.collision;
+package physics.collision.shape;
 
 import math.Vec2D;
 

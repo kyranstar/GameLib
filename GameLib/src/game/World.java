@@ -24,7 +24,6 @@ public abstract class World extends DrawingPanel {
 	@Override
 	public void update(final float dt) {
 		systemManager.broadcastMessage(new UpdateMessage(dt));
-
 		updateWorld(dt);
 	}
 

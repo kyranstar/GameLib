@@ -2,7 +2,7 @@ package physics.constraints;
 
 import math.AngleUtils;
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;
 
@@ -21,7 +21,7 @@ public class AngleJoint extends Joint {
 	 * @param tolerance
 	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
 	 */
-	public AngleJoint(final PhysicsEntity a, final PhysicsEntity b, final float midAngle, final float tolerance) {
+	public AngleJoint(final PhysicsComponent a, final PhysicsComponent b, final float midAngle, final float tolerance) {
 		super(a, b);
 		if (tolerance < 0 || tolerance >= AngleUtils.PI) {
 			throw new IllegalArgumentException("Tolerance must be >= 0 and < Pi");

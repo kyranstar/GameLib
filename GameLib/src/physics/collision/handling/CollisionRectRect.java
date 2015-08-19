@@ -3,7 +3,7 @@ package physics.collision.handling;
 import java.awt.geom.Rectangle2D;
 
 import math.Vec2D;
-import physics.collision.RectShape;
+import physics.collision.shape.RectShape;
 
 class CollisionRectRect {
 

@@ -4,18 +4,18 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import math.Vec2D;
-import physics.PhysicsEntity;
+import physics.PhysicsComponent;
 
 public abstract class PointBodyJoint extends Constraint {
-	private final PhysicsEntity a;
+	private final PhysicsComponent a;
 	private final Vec2D point;
 
-	public PointBodyJoint(final PhysicsEntity a, final Vec2D point) {
+	public PointBodyJoint(final PhysicsComponent a, final Vec2D point) {
 		this.a = a;
 		this.point = point;
 	}
 
-	public PhysicsEntity getA() {
+	public PhysicsComponent getA() {
 		return a;
 	}
 
