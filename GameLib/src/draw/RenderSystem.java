@@ -1,5 +1,6 @@
 package draw;
 
+import game.Camera2D;
 import game.GameSystem;
 import game.World;
 import game.messaging.CreateConstraintMessage;
@@ -12,6 +13,7 @@ import game.messaging.RenderMessage;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,14 +32,18 @@ public class RenderSystem extends GameSystem {
 	private final World world;
 	private int collisionChecksThisTick;
 	private int collisionSolvesThisTick;
+	private final Camera2D camera = new Camera2D();
 
 	public RenderSystem(final GameSystemManager systemManager, final World world) {
 		super(systemManager);
 		this.world = world;
+		camera.bounds = new Rectangle(world.getBounds());
 	}
 
 	private void render(final Graphics2D g) {
 		GraphicsUtils.prettyGraphics(g);
+		camera.translate(g);
+		camera.clip(g);
 
 		for (final PhysicsComponent object : entities) {
 			if (object.shape instanceof RectShape) {
@@ -91,6 +97,8 @@ public class RenderSystem extends GameSystem {
 		g.drawString("Collision Solves: " + collisionSolvesThisTick, 10, 75);
 
 		drawMeter(g);
+		camera.unclip(g);
+		camera.untranslate(g);
 	}
 
 	private void drawMeter(final Graphics g) {

@@ -13,42 +13,26 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public abstract class DrawingPanel extends GameLoop {
+public abstract class DrawingPanel {
 
 	private JPanel panel;
 	private Dimension size;
 
-	public DrawingPanel(final int fps, final int ups, final Color background, final Dimension size) {
-		super(fps, ups);
-		initialize(background, size);
+	public DrawingPanel(final Dimension size, final GameLoop input) {
+		this(size, Color.WHITE, input);
 	}
 
-	/**
-	 * Creates a panel with 60 fps and 120 ups
-	 *
-	 * @param background
-	 * @param size
-	 */
-	public DrawingPanel(final Color background, final Dimension size) {
-		this(60, 120, background, size);
+	public DrawingPanel(final Dimension size, final Color background, final GameLoop input) {
+
+		initialize(background, size, input);
 	}
 
-	public DrawingPanel(final Dimension size) {
-		this(Color.WHITE, size);
-	}
-
-	public DrawingPanel(final int ups, final Dimension size, final Color background) {
-		super(ups);
-		initialize(background, size);
-	}
-
-	@Override
 	public void draw(final int millis) {
 		panel.repaint(millis);
 	}
 
 	@SuppressWarnings("serial")
-	private void initialize(final Color background, final Dimension size) {
+	private void initialize(final Color background, final Dimension size, final GameLoop input) {
 		this.size = size;
 		panel = new JPanel() {
 			@Override
@@ -60,10 +44,10 @@ public abstract class DrawingPanel extends GameLoop {
 
 		panel.setBackground(background);
 
-		panel.addMouseListener(this);
-		panel.addMouseMotionListener(this);
-		panel.addKeyListener(this);
-		panel.addMouseWheelListener(this);
+		panel.addMouseListener(input);
+		panel.addMouseMotionListener(input);
+		panel.addKeyListener(input);
+		panel.addMouseWheelListener(input);
 
 		panel.setFocusable(true);
 		panel.requestFocusInWindow();
@@ -72,7 +56,7 @@ public abstract class DrawingPanel extends GameLoop {
 
 	public abstract void draw(Graphics2D g);
 
-	public DrawingPanel createFrame() {
+	public void createFrame() {
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				final JFrame frame = new JFrame();
@@ -86,7 +70,10 @@ public abstract class DrawingPanel extends GameLoop {
 		} catch (HeadlessException | InvocationTargetException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		return this;
+	}
+
+	public void repaint(final int millis) {
+		panel.repaint();
 	}
 
 }

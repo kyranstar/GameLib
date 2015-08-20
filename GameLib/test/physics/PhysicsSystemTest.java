@@ -19,12 +19,14 @@ public class PhysicsSystemTest {
 		final GameSystemManager manager = new GameSystemManager();
 		final Rectangle bounds = new Rectangle(0, 0, 10, 10);
 		final PhysicsSystem system = new PhysicsSystem(manager, bounds);
+		manager.addSystem(system);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testAddEntityMissingMaterial() {
 		final WorldMock world = new WorldMock();
 		final GameSystemManager manager = world.getSystemManager();
+		manager.addSystem(new PhysicsSystem(manager, new Rectangle(0, 0, 100, 100)));
 
 		Assert.assertEquals(0, world.getEntityCount());
 
@@ -45,6 +47,7 @@ public class PhysicsSystemTest {
 	public void testAddEntityMissingShape() {
 		final WorldMock world = new WorldMock();
 		final GameSystemManager manager = world.getSystemManager();
+		manager.addSystem(new PhysicsSystem(manager, new Rectangle(0, 0, 100, 100)));
 
 		Assert.assertEquals(0, world.getEntityCount());
 
