@@ -1,16 +1,12 @@
 package game.messaging;
 
-import physics.PhysicsComponent;
+import game.entity.GameEntity;
 
 public class CreateEntityMessage implements Message {
 
-	public PhysicsComponent entity;
+	public GameEntity entity;
 
-	public CreateEntityMessage(final PhysicsComponent e) {
-		if (!e.isFullyConstructed()) {
-			throw new IllegalArgumentException("Entity must be full constructed! Missing attributes: " + e.getMissingAttributes());
-		}
-
+	public CreateEntityMessage(final GameEntity e) {
 		entity = e;
 	}
 }

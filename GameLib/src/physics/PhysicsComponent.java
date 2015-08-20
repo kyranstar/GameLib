@@ -1,20 +1,23 @@
 package physics;
 
+import game.entity.GameComponent;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
-import game.entity.GameComponent;
 import math.Vec2D;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.CShape;
 
 public class PhysicsComponent implements GameComponent {
+
+	public static final int COMPONENT_ID = 1;
+
 	/**
-	 * A constant representing infinite mass. If
-	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
 
@@ -38,8 +41,7 @@ public class PhysicsComponent implements GameComponent {
 	public CShape shape;
 
 	// all entities that we've checked collisions with so far this tick
-	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections
-			.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
+	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
 
 	public CollisionFilter collisionFilter = CollisionFilter.ALL_COLLISIONS;
 
@@ -149,8 +151,7 @@ public class PhysicsComponent implements GameComponent {
 	}
 
 	/**
-	 * A debug method that returns all missing attributes for this entity to
-	 * work properly
+	 * A debug method that returns all missing attributes for this entity to work properly
 	 *
 	 * @return a list of missing attributes
 	 */
@@ -163,7 +164,7 @@ public class PhysicsComponent implements GameComponent {
 			missingAttributes.add("Shape");
 		}
 		if (collisionFilter == null) {
-			missingAttributes.add("collisionFilter");
+			missingAttributes.add("Collision Filter");
 		}
 
 		return missingAttributes;
@@ -171,6 +172,6 @@ public class PhysicsComponent implements GameComponent {
 
 	@Override
 	public int getComponentId() {
-		return 1;
+		return COMPONENT_ID;
 	}
 }

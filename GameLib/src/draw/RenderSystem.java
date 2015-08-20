@@ -13,7 +13,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import physics.PhysicsComponent;
 import physics.PhysicsSystem;
@@ -103,10 +105,18 @@ public class RenderSystem extends GameSystem {
 		g.drawString("1 meter", x + 10, (top + bottom) / 2);
 	}
 
+	private static final Set<Class<? extends Message>> acceptedMessages = new HashSet<>();
+	{
+		acceptedMessages.add(CreateEntityMessage.class);
+		acceptedMessages.add(CreateConstraintMessage.class);
+		acceptedMessages.add(RenderMessage.class);
+		acceptedMessages.add(DebugMessage.class);
+	}
+
 	@Override
 	public void recieveMessage(final Message m) {
 		if (m instanceof CreateEntityMessage) {
-			entities.add(((CreateEntityMessage) m).entity);
+			entities.add((PhysicsComponent) ((CreateEntityMessage) m).entity.getComponent(PhysicsComponent.COMPONENT_ID));
 		} else if (m instanceof CreateConstraintMessage) {
 			constraints.add(((CreateConstraintMessage) m).constraint);
 		} else if (m instanceof RenderMessage) {
@@ -126,5 +136,10 @@ public class RenderSystem extends GameSystem {
 			collisionSolvesThisTick = ((DebugMessage<Integer>) m).info;
 			break;
 		}
+	}
+
+	@Override
+	public Set<Class<? extends Message>> getAcceptedMessages() {
+		return acceptedMessages;
 	}
 }

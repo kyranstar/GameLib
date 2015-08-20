@@ -1,8 +1,14 @@
 package game;
 
+import game.entity.GameEntity;
+import game.messaging.CreateConstraintMessage;
+import game.messaging.CreateEntityMessage;
+import game.messaging.RenderMessage;
+
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -11,14 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import draw.RenderSystem;
-import game.messaging.CreateConstraintMessage;
-import game.messaging.CreateEntityMessage;
-import game.messaging.RenderMessage;
 import math.AngleUtils;
 import math.Vec2D;
 import physics.Material;
 import physics.PhysicsComponent;
+import physics.PhysicsSystem;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.CircleShape;
 import physics.collision.shape.RectShape;
@@ -26,12 +29,15 @@ import physics.constraints.AngleJoint;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
 import physics.constraints.SpringPointConstraint;
+import draw.RenderSystem;
 
 public class Test extends World {
 
 	public Test(final Dimension bounds) {
 		super(60, 120, bounds);
 		systemManager.addSystem(new RenderSystem(systemManager, this));
+		systemManager.addSystem(new PhysicsSystem(systemManager, new Rectangle(0, 0, bounds.width, bounds.height)));
+
 		ball();
 		// collisionFilteringTest();
 	}
@@ -110,8 +116,7 @@ public class Test extends World {
 		PhysicsComponent last = null;
 		for (int i = 0; i < vertices; i++) {
 			final float angle = (float) (2 * Math.PI / vertices * i);
-			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist),
-					(float) (centerV.y + Math.sin(angle) * dist));
+			final Vec2D newCenter = new Vec2D((float) (centerV.x + Math.cos(angle) * dist), (float) (centerV.y + Math.sin(angle) * dist));
 			final PhysicsComponent vertex = createBall(newCenter, 10);
 			addEntity(vertex);
 			if (last != null) {
@@ -128,12 +133,14 @@ public class Test extends World {
 		}
 	}
 
-	private void addEntity(final PhysicsComponent e) {
-		systemManager.broadcastMessage(new CreateEntityMessage(e));
+	private void addEntity(final PhysicsComponent pc) {
+		final GameEntity e = new GameEntity();
+		e.addComponent(pc);
+		systemManager.broadcast(new CreateEntityMessage(e));
 	}
 
 	private void addConstraint(final Constraint c) {
-		systemManager.broadcastMessage(new CreateConstraintMessage(c));
+		systemManager.broadcast(new CreateConstraintMessage(c));
 	}
 
 	private PhysicsComponent createBall(final Vec2D center, final int radius) {
@@ -146,15 +153,13 @@ public class Test extends World {
 		return ob;
 	}
 
-	public static void main(final String[] args)
-			throws HeadlessException, InvocationTargetException, InterruptedException {
+	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
 		new Test(new Dimension(1000, 1000)).createFrame().run();
 
 	}
 
 	@Override
-	public void processInput(final Queue<KeyEvent> keyEvents,
-			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
+	public void processInput(final Queue<KeyEvent> keyEvents, final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
 			final Queue<MouseWheelEvent> mouseWheelEvents2) {
 		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
 			if (e.type != MouseEventType.CLICK) {
@@ -166,11 +171,19 @@ public class Test extends World {
 
 	@Override
 	public void draw(final Graphics2D g) {
-		systemManager.broadcastMessage(new RenderMessage(g));
+		systemManager.broadcast(new RenderMessage(g));
 	}
+
+	int i = 0;
 
 	@Override
 	public void updateWorld(final float dt) {
+		if (i % 40 == 0) {
+			final PhysicsComponent e = createBall(new Vec2D(501, 0), 10);
+
+			addEntity(e);
+		}
+		i++;
 	}
 
 }

@@ -4,17 +4,21 @@ import game.GameSystem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GameSystemManager {
 	private final List<GameSystem> systems = new ArrayList<>();
 
-	public void broadcastMessage(final Message m) {
+	public synchronized void broadcast(final Message m) {
 		for (final GameSystem s : systems) {
-			s.recieveMessage(m);
+			final Set<Class<? extends Message>> accepted = s.getAcceptedMessages();
+			if (accepted == GameSystem.ACCEPT_ALL_MESSAGES || accepted.contains(m.getClass())) {
+				s.recieveMessage(m);
+			}
 		}
 	}
 
-	public void addSystem(final GameSystem s) {
+	public synchronized void addSystem(final GameSystem s) {
 		systems.add(s);
 	}
 }

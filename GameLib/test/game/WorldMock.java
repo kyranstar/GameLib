@@ -1,7 +1,6 @@
 package game;
 
-import game.GameSystem;
-import game.World;
+import game.entity.GameEntity;
 import game.messaging.CreateConstraintMessage;
 import game.messaging.CreateEntityMessage;
 import game.messaging.GameSystemManager;
@@ -12,15 +11,20 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
+
+import physics.constraints.Constraint;
 
 public class WorldMock extends World {
 
-	private final EntityCounterSystem entityCounter;
+	private final EntityCollectorSystem entityCounter;
 
 	public WorldMock() {
 		super(60, 60, new Dimension(500, 500));
-		entityCounter = new EntityCounterSystem(systemManager);
+		entityCounter = new EntityCollectorSystem(systemManager);
 		systemManager.addSystem(entityCounter);
 	}
 
@@ -54,28 +58,33 @@ public class WorldMock extends World {
 	}
 
 	public int getEntityCount() {
-		return entityCounter.entityCount;
+		return entityCounter.entities.size();
 	}
 
 	public int getConstraintCount() {
-		return entityCounter.constraintCount;
+		return entityCounter.constraints.size();
 	}
 
-	private static class EntityCounterSystem extends GameSystem {
-		private int entityCount = 0;
-		private int constraintCount = 0;
+	private static class EntityCollectorSystem extends GameSystem {
+		private final List<GameEntity> entities = new ArrayList<>();
+		private final List<Constraint> constraints = new ArrayList<>();
 
-		public EntityCounterSystem(final GameSystemManager systemManager) {
+		public EntityCollectorSystem(final GameSystemManager systemManager) {
 			super(systemManager);
 		}
 
 		@Override
 		public void recieveMessage(final Message m) {
 			if (m instanceof CreateEntityMessage) {
-				entityCount++;
+				entities.add(((CreateEntityMessage) m).entity);
 			} else if (m instanceof CreateConstraintMessage) {
-				constraintCount++;
+				constraints.add(((CreateConstraintMessage) m).constraint);
 			}
+		}
+
+		@Override
+		public Set<Class<? extends Message>> getAcceptedMessages() {
+			return GameSystem.ACCEPT_ALL_MESSAGES;
 		}
 
 	}

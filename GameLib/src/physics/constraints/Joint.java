@@ -11,6 +11,10 @@ public abstract class Joint extends Constraint {
 	private final PhysicsComponent b;
 
 	public Joint(final PhysicsComponent a, final PhysicsComponent b) {
+		if (a == null || b == null) {
+			throw new NullPointerException("Neither a nor b can be null");
+		}
+
 		this.a = a;
 		this.b = b;
 	}
