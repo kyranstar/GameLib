@@ -19,6 +19,10 @@ import java.util.Queue;
 
 import math.AngleUtils;
 import math.Vec2D;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import physics.Material;
 import physics.PhysicsComponent;
 import physics.PhysicsSystem;
@@ -32,6 +36,8 @@ import physics.constraints.SpringPointConstraint;
 import draw.RenderSystem;
 
 public class Test extends World {
+
+	final static Logger logger = LoggerFactory.getLogger(Test.class);
 
 	public Test(final Dimension bounds) {
 		super(60, 120, bounds);
@@ -153,6 +159,7 @@ public class Test extends World {
 	}
 
 	public static void main(final String[] args) throws HeadlessException, InvocationTargetException, InterruptedException {
+		logger.info("Application started");
 		new Test(new Dimension(1000, 1000)).createFrame().run();
 
 	}

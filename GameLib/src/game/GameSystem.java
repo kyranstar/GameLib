@@ -7,9 +7,12 @@ import java.util.Set;
 
 public abstract class GameSystem {
 
+	/**
+	 * A constant that represents a set containing all message types.
+	 */
 	public static Set<Class<? extends Message>> ACCEPT_ALL_MESSAGES = null;
 
-	protected GameSystemManager systemManager = new GameSystemManager();
+	protected GameSystemManager systemManager;
 
 	public GameSystem(final GameSystemManager systemManager) {
 		this.systemManager = systemManager;
@@ -25,9 +28,9 @@ public abstract class GameSystem {
 
 	/**
 	 * Returns a set of classes of messages that this system should recieve through {@link #recieveMessage(Message)}. If
-	 * null, this system accepts all messages.
+	 * {@link #ACCEPT_ALL_MESSAGES}, this system accepts all messages.
 	 *
-	 * @return null or a set of accepted message classes
+	 * @return {@link #ACCEPT_ALL_MESSAGES} or a set of accepted message classes
 	 */
 	public abstract Set<Class<? extends Message>> getAcceptedMessages();
 }

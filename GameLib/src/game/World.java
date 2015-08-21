@@ -33,6 +33,11 @@ public abstract class World extends GameLoop {
 	}
 
 	@Override
+	public void draw() {
+		drawingPanel.repaint();
+	}
+
+	@Override
 	public void update(final float dt) {
 		systemManager.broadcast(new UpdateMessage(dt));
 		updateWorld(dt);

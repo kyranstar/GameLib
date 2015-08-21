@@ -10,12 +10,17 @@ import java.awt.event.MouseWheelListener;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class GameLoop implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener {
+	private final Logger logger = LoggerFactory.getLogger(GameLoop.class);
+
 	private final boolean capFPS;
 	private boolean running = true;
 	// the target amount of time between draws in millis
-	private int targetDrawTime;
-	private float targetDT;
+	private final int targetDrawTime;
+	private final float targetDT;
 
 	// ArrayDeque is supposed to be the fastest collection
 	private final Queue<KeyEvent> keyEvents = new ArrayDeque<>();
@@ -35,26 +40,23 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	private float accumulator = 0.0f;
 
 	protected GameLoop(final int fps, final int ups) {
-		setTargetFPS(fps);
-		setTargetUPS(ups);
+		targetDrawTime = 1000 / fps;
+		targetDT = 1f / ups;
 		capFPS = true;
+
+		logger.info("Game loop created. UPS: {}, FPS: {}", ups, fps);
 	}
 
 	protected GameLoop(final int ups) {
-		setTargetFPS(-1);
-		setTargetUPS(ups);
-		capFPS = false;
-	}
-
-	private void setTargetUPS(final int ups) {
+		targetDrawTime = 0;
 		targetDT = 1f / ups;
-	}
+		capFPS = false;
 
-	public void setTargetFPS(final int fps) {
-		targetDrawTime = 1000 / fps;
+		logger.info("Game loop created. UPS: {}, FPS: Uncapped", ups);
 	}
 
 	public void run() {
+		logger.info("Game loop started.");
 		counterstart = System.nanoTime();
 
 		// the amount of time to update by per update
@@ -84,7 +86,11 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 			accumulator -= targetDT;
 		}
 		final long timeBeforeDraw = System.currentTimeMillis();
-		draw(targetDrawTime);
+		if (capFPS) {
+			draw(targetDrawTime);
+		} else {
+			draw();
+		}
 		currentFPS++;
 		final float counterelapsed = System.nanoTime() - counterstart;
 
@@ -108,7 +114,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 			try {
 				Thread.sleep(i);
 			} catch (final InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Thread interrupted during sleep!", e);
 			}
 		}
 	}
@@ -144,6 +150,8 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	public abstract void update(float dt);
 
 	public abstract void draw(int targetDrawTime);
+
+	public abstract void draw();
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {

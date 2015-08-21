@@ -13,7 +13,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class DrawingPanel {
+	private final Logger logger = LoggerFactory.getLogger(DrawingPanel.class);
 
 	private JPanel panel;
 	private Dimension size;
@@ -68,11 +72,15 @@ public abstract class DrawingPanel {
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			});
 		} catch (HeadlessException | InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
+			logger.error("JFrame was unable to be created!", e);
 		}
 	}
 
 	public void repaint(final int millis) {
+		panel.repaint(millis);
+	}
+
+	public void repaint() {
 		panel.repaint();
 	}
 
