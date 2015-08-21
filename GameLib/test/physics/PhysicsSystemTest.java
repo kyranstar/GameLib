@@ -36,7 +36,6 @@ public class PhysicsSystemTest {
 		e.shape = new RectShape(0, 0, 1, 1);
 		e.collisionFilter = new CollisionFilter(0, 0, 0);
 		e.setMass(1);
-		e.setRotationalInertia(1);
 
 		entity.addComponent(e);
 
@@ -56,7 +55,6 @@ public class PhysicsSystemTest {
 		final PhysicsComponent e = new PhysicsComponent();
 		e.collisionFilter = new CollisionFilter(0, 0, 0);
 		e.setMass(1);
-		e.setRotationalInertia(1);
 		e.setMaterial(Material.STEEL);
 
 		entity.addComponent(e);

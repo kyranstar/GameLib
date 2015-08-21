@@ -21,8 +21,6 @@ public class PhysicsComponent implements GameComponent {
 	 */
 	public static final float INFINITE_MASS = 0;
 
-	public static final float INFINITE_ROT_INERTIA = 0;
-
 	// if the object's velocity was below the sleep threshold for more than
 	// FRAMES_STILL_TO_SLEEP frames
 	public boolean sleeping;
@@ -31,10 +29,7 @@ public class PhysicsComponent implements GameComponent {
 	public int framesStill;
 
 	private float invMass;
-	private float invRotInertia;
 	private Vec2D velocity = new Vec2D();
-
-	private float radialVelocity;
 
 	private Material material;
 
@@ -47,7 +42,6 @@ public class PhysicsComponent implements GameComponent {
 
 	public void update(final float dt) {
 		moveRelative(getVelocity().multiply(dt));
-		shape.rotate(getRadialVelocity() * dt);
 	}
 
 	public float getMass() {
@@ -75,9 +69,6 @@ public class PhysicsComponent implements GameComponent {
 
 	public void applyForce(final Vec2D force, final Vec2D contactVector) {
 		setVelocity(getVelocity().plus(force.multiply(invMass)));
-		radialVelocity += getInvRotInertia() * contactVector.perpendicular().dotProduct(getVelocity());
-		// radialVelocity += getInvRotInertia() *
-		// contactVector.crossProduct(force);
 	}
 
 	public void applyForce(final Vec2D force) {
@@ -120,30 +111,6 @@ public class PhysicsComponent implements GameComponent {
 			throw new NullPointerException("Velocity cannot be null");
 		}
 		this.velocity = velocity;
-	}
-
-	public float getOrientation() {
-		return shape.getOrientation();
-	}
-
-	public float getRadialVelocity() {
-		return radialVelocity;
-	}
-
-	public void setRadialVelocity(final float radialVelocity) {
-		this.radialVelocity = radialVelocity;
-	}
-
-	public float getInvRotInertia() {
-		return invRotInertia;
-	}
-
-	public void setRotationalInertia(final float i) {
-		if (i == PhysicsComponent.INFINITE_ROT_INERTIA) {
-			invRotInertia = 0;
-		} else {
-			invRotInertia = 1f / i;
-		}
 	}
 
 	public boolean isFullyConstructed() {

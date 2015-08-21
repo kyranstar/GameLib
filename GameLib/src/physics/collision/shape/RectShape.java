@@ -4,7 +4,7 @@ import java.awt.geom.Rectangle2D;
 
 import math.Vec2D;
 
-public class RectShape extends CShape implements PolygonShape {
+public class RectShape implements CShape, PolygonShape {
 	// upper left
 	private Vec2D min;
 	// bottom right
@@ -69,27 +69,6 @@ public class RectShape extends CShape implements PolygonShape {
 
 	@Override
 	public Vec2D getVertex(final int vert) {
-		return rotatePoint(getUnrotatedVertex(vert), orientation);
-	}
-
-	/**
-	 * rotates a point around the center of the box by its orientation
-	 *
-	 * @param unrotatedVertex
-	 * @return
-	 */
-	private Vec2D rotatePoint(final Vec2D unrotatedVertex, final float orientation) {
-		// rotate point around center
-		final float centerX = getMin().x + width() / 2;
-		final float centerY = getMin().y + height() / 2;
-		final float newX = (float) (centerX + (unrotatedVertex.x - centerX) * Math.cos(orientation) - (unrotatedVertex.y - centerY)
-				* Math.sin(orientation));
-		final float newY = (float) (centerY + (unrotatedVertex.x - centerX) * Math.sin(orientation) + (unrotatedVertex.y - centerY)
-				* Math.cos(orientation));
-		return new Vec2D(newX, newY);
-	}
-
-	private Vec2D getUnrotatedVertex(final int vert) {
 		switch (vert) {
 		case 0:
 			return min;

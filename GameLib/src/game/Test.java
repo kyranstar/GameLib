@@ -149,7 +149,6 @@ public class Test extends World {
 		ob.setMaterial(Material.STEEL);
 		ob.shape = new CircleShape(center, radius);
 		ob.setMass(radius * radius);
-		ob.setRotationalInertia(1);
 		return ob;
 	}
 

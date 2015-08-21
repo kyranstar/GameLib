@@ -4,7 +4,7 @@ import java.awt.geom.Rectangle2D;
 
 import math.Vec2D;
 
-public class CircleShape extends CShape {
+public class CircleShape implements CShape {
 	private Vec2D center;
 	private final float radius;
 

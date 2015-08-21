@@ -57,11 +57,9 @@ public class RenderSystem extends GameSystem {
 					g.setColor(new Color(200, 200, 200));
 				}
 				g.translate(x + width / 2, y + height / 2);
-				g.rotate(object.getOrientation());
 				g.fillRect(-width / 2, -height / 2, width, height);
 				g.setColor(Color.BLACK);
 				g.drawRect(-width / 2, -height / 2, width, height);
-				g.rotate(-object.getOrientation());
 				g.translate(-(x + width / 2), -(y + height / 2));
 			} else if (object.shape instanceof CircleShape) {
 				final int radius = (int) ((CircleShape) object.shape).getRadius();
@@ -74,14 +72,12 @@ public class RenderSystem extends GameSystem {
 				}
 
 				g.translate(x + radius, y + radius);
-				g.rotate(object.getOrientation());
 
 				g.fillOval(-radius, -radius, radius * 2, radius * 2);
 				g.setColor(Color.BLACK);
 				g.drawOval(-radius, -radius, radius * 2, radius * 2);
 				g.drawLine(0, 0, radius, 0);
 
-				g.rotate(-object.getOrientation());
 				g.translate(-(x + radius), -(y + radius));
 			}
 		}

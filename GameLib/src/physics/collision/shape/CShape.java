@@ -4,9 +4,7 @@ import java.awt.geom.Rectangle2D;
 
 import math.Vec2D;
 
-public abstract class CShape {
-
-	protected float orientation;
+public interface CShape {
 
 	/**
 	 * Returns the center of mass of the object
@@ -28,13 +26,5 @@ public abstract class CShape {
 	 * @return
 	 */
 	public abstract Rectangle2D getRect();
-
-	public void rotate(final float radians) {
-		orientation += radians;
-	}
-
-	public float getOrientation() {
-		return orientation;
-	}
 
 }
