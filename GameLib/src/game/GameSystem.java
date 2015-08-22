@@ -10,7 +10,7 @@ public abstract class GameSystem {
 	/**
 	 * A constant that represents a set containing all message types.
 	 */
-	public static Set<Class<? extends Message>> ACCEPT_ALL_MESSAGES = null;
+	public static final Set<Class<? extends Message>> ACCEPT_ALL_MESSAGES = null;
 
 	protected GameSystemManager systemManager;
 

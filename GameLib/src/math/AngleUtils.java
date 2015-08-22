@@ -2,7 +2,7 @@ package math;
 
 public final class AngleUtils {
 	public static final float PI = (float) Math.PI;
-	public static final float TWO_PI = PI * 2;
+	public static final float TWO_PI = (float) (Math.PI * 2);
 
 	private AngleUtils() {
 	}
