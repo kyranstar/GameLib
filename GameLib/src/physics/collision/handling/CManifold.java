@@ -42,7 +42,7 @@ public class CManifold {
 
 	public void setNormal(final Vec2D normal) {
 		assert !normal.equals(Vec2D.ZERO);
-		assert Math.abs(normal.length()) <= 1.01f : normal.length();
+		assert normal.isNormalized();
 		this.normal = normal;
 	}
 

@@ -19,8 +19,6 @@ public class DistanceJoint extends Joint {
 
 	@Override
 	public void update() {
-		assert getA() != null && getB() != null;
-
 		final CManifold m = new CManifold();
 		m.a = getA();
 		m.b = getB();

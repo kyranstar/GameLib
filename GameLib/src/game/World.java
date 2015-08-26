@@ -1,7 +1,6 @@
 package game;
 
 import game.messaging.GameSystemManager;
-import game.messaging.UpdateMessage;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -36,14 +35,6 @@ public abstract class World extends GameLoop {
 	public void draw() {
 		drawingPanel.repaint();
 	}
-
-	@Override
-	public void update(final float dt) {
-		systemManager.broadcast(new UpdateMessage(dt));
-		updateWorld(dt);
-	}
-
-	public abstract void updateWorld(float dt);
 
 	public int getHeight() {
 		return bounds.height;

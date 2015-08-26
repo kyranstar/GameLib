@@ -16,18 +16,15 @@ class CollisionCircleCircle {
 	public static CManifold generateManifold(final CircleShape a, final CircleShape b, final CManifold m) {
 		// A to B
 		final Vec2D n = b.center().minus(a.center());
-		final float dist = n.length();
-
-		if (dist == 0) {
+		if (n.length() == 0) {
 			// circles are on the same position, choose random but consistent
 			// values
 			m.setNormal(new Vec2D(0, 1));
 			m.setPenetration(Math.min(a.getRadius(), b.getRadius()));
 			return m;
 		}
-		// don't recalculate dist to normalize
-		m.setNormal(n.divide(dist));
-		m.setPenetration(b.getRadius() + a.getRadius() - dist);
+		m.setNormal(n.unitVector());
+		m.setPenetration(b.getRadius() + a.getRadius() - n.length());
 		return m;
 	}
 }

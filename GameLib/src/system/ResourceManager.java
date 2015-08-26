@@ -2,10 +2,12 @@ package system;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +18,6 @@ public final class ResourceManager {
 	private static final Logger logger = LoggerFactory.getLogger(ResourceManager.class);
 
 	private final Map<String, Resource<?>> resources = new HashMap<>();
-	private final String root;
-
-	/**
-	 *
-	 * @param root
-	 *            this is appended to the beginning of all filepaths loaded
-	 */
-	public ResourceManager(final String root) {
-		this.root = root;
-	}
 
 	@SuppressWarnings("unchecked")
 	public <T> Resource<T> loadResource(final String filepath) {
@@ -47,8 +39,31 @@ public final class ResourceManager {
 		case "jpg":
 		case "jpeg":
 			return (Resource<T>) new Resource<BufferedImage>(loadImage('/' + filepath), filepath);
+		case "txt":
+		case "cnf":
+		case "conf":
+		case "cfg":
+		case "log":
+		case "csv":
+		case "yaml":
+		case "xml":
+		case "json":
+		case "html":
+			return (Resource<T>) new Resource<String>(loadText('/' + filepath), filepath);
 		}
 		throw new IllegalArgumentException("Unrecognized file extension: " + extension);
+	}
+
+	private String loadText(final String filename) {
+		final InputStream in = ResourceManager.class.getResourceAsStream(filename);
+		return convertStreamToString(in);
+	}
+
+	private static String convertStreamToString(final InputStream is) {
+		try (Scanner s = new Scanner(is, "UTF-8")) {
+			s.useDelimiter("\\A");
+			return s.hasNext() ? s.next() : "";
+		}
 	}
 
 	private BufferedImage loadImage(final String file) {

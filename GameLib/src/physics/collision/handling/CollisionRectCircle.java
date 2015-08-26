@@ -23,8 +23,7 @@ class CollisionRectCircle {
 			return true;
 		}
 
-		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2)
-				+ (int) Math.pow(circleDistance_y - a.height() / 2, 2);
+		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2) + (int) Math.pow(circleDistance_y - a.height() / 2, 2);
 
 		return cornerDistance_sq <= (int) Math.pow(b.getRadius(), 2);
 
@@ -64,12 +63,11 @@ class CollisionRectCircle {
 		}
 		// vector from closest to the center of the circle
 		final Vec2D normal = n.minus(closest);
-		final float d = normal.length();
 		final float r = b.getRadius();
 		// Collision normal needs to be flipped to point outside if circle was
 		// inside the AABB
-		m.setNormal(inside ? normal.divide(d).multiply(-1) : normal.divide(d));
-		m.setPenetration(r - d);
+		m.setNormal(inside ? normal.unitVector().multiply(-1) : normal.unitVector());
+		m.setPenetration(r - normal.length());
 		return m;
 	}
 

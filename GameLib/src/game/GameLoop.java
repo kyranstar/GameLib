@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -23,7 +24,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	private final float targetDT;
 
 	// ArrayDeque is supposed to be the fastest collection
-	private final Queue<KeyEvent> keyEvents = new ArrayDeque<>();
+	private final Queue<EventPair<KeyEvent, KeyEventType>> keyEvents = new ArrayDeque<>();
 	private final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents = new ArrayDeque<>();
 	private final Queue<MouseWheelEvent> mouseWheelEvents = new ArrayDeque<>();
 
@@ -38,6 +39,8 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	private long currentTime = System.currentTimeMillis();
 	// accumulates available time for updating.
 	private float accumulator = 0.0f;
+
+	private Point currentMousePoint;
 
 	protected GameLoop(final int fps, final int ups) {
 		targetDrawTime = 1000 / fps;
@@ -144,7 +147,7 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		running = false;
 	}
 
-	public abstract void processInput(Queue<KeyEvent> keyEvents, Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent,
+	public abstract void processInput(Queue<EventPair<KeyEvent, KeyEventType>> keyEvents2, Queue<EventPair<MouseEvent, MouseEventType>> mouseEvent,
 			Queue<MouseWheelEvent> mouseWheelEvents2);
 
 	public abstract void update(float dt);
@@ -198,21 +201,21 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 	@Override
 	public void keyPressed(final KeyEvent e) {
 		synchronized (keyEvents) {
-			keyEvents.add(e);
+			keyEvents.add(new EventPair<>(e, KeyEventType.PRESS));
 		}
 	}
 
 	@Override
 	public void keyReleased(final KeyEvent e) {
 		synchronized (keyEvents) {
-			keyEvents.add(e);
+			keyEvents.add(new EventPair<>(e, KeyEventType.RELEASE));
 		}
 	}
 
 	@Override
 	public void keyTyped(final KeyEvent e) {
 		synchronized (keyEvents) {
-			keyEvents.add(e);
+			keyEvents.add(new EventPair<>(e, KeyEventType.TYPE));
 		}
 	}
 
@@ -225,18 +228,21 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		currentMousePoint = e.getPoint();
 	}
 
 	protected static class EventPair<A, B> {
-		A event;
-		B type;
+		public A event;
+		public B type;
 
 		public EventPair(final A e, final B t) {
 			event = e;
 			type = t;
 		}
+	}
+
+	protected Point getMousePosition() {
+		return currentMousePoint;
 	}
 
 	protected static enum MouseEventType {
@@ -246,5 +252,11 @@ public abstract class GameLoop implements KeyListener, MouseListener, MouseWheel
 		DRAG,
 		EXIT,
 		ENTER;
+	}
+
+	protected static enum KeyEventType {
+		PRESS,
+		TYPE,
+		RELEASE;
 	}
 }

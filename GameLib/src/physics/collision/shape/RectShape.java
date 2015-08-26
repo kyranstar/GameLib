@@ -5,6 +5,10 @@ import java.awt.geom.Rectangle2D;
 import math.Vec2D;
 
 public class RectShape implements CShape, PolygonShape {
+
+	public static final int LEFT_TOP = 0;
+	public static final int RIGHT_BOTTOM = 2;
+
 	// upper left
 	private Vec2D min;
 	// bottom right

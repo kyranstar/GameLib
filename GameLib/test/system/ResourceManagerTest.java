@@ -12,7 +12,7 @@ public class ResourceManagerTest {
 
 	@Test
 	public void testLoadTestImage() {
-		final ResourceManager rm = new ResourceManager("");
+		final ResourceManager rm = new ResourceManager();
 
 		final Resource<BufferedImage> im = rm.<BufferedImage> loadResource(TestConstants.TEST_IMAGE_NAME);
 

@@ -1,9 +1,11 @@
-package game;
+package test;
 
+import game.World;
 import game.entity.GameEntity;
 import game.messaging.CreateConstraintMessage;
 import game.messaging.CreateEntityMessage;
 import game.messaging.RenderMessage;
+import game.messaging.UpdateMessage;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -32,6 +34,7 @@ import physics.collision.shape.RectShape;
 import physics.constraints.AngleJoint;
 import physics.constraints.Constraint;
 import physics.constraints.DistanceJoint;
+import physics.constraints.SpringJoint;
 import physics.constraints.SpringPointConstraint;
 import draw.RenderSystem;
 
@@ -44,8 +47,30 @@ public class Test extends World {
 		systemManager.addSystem(new RenderSystem(systemManager, this));
 		systemManager.addSystem(new PhysicsSystem(systemManager, new Rectangle(0, 0, bounds.width, bounds.height)));
 
-		ball();
+		// ball();
 		// collisionFilteringTest();
+		rope();
+	}
+
+	private void rope() {
+		final List<PhysicsComponent> entities = new ArrayList<>();
+		final int parts = 20;
+		final int rad = 5;
+
+		for (int i = 0; i < parts; i++) {
+			final PhysicsComponent part = new PhysicsComponent();
+			part.shape = new CircleShape(new Vec2D(i * (rad * 2 + 5) + 200, 100), rad);
+			part.setMass(rad * rad * AngleUtils.PI);
+			part.setMaterial(Material.STEEL);
+			if (i != 0) {
+				addConstraint(new SpringJoint(part, entities.get(entities.size() - 1), 0.0001f));
+			}
+			if (i == 0) {
+				part.setMass(PhysicsComponent.INFINITE_MASS);
+			}
+			entities.add(part);
+			addEntity(part);
+		}
 	}
 
 	private void collisionFilteringTest() {
@@ -165,8 +190,8 @@ public class Test extends World {
 	}
 
 	@Override
-	public void processInput(final Queue<KeyEvent> keyEvents, final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents,
-			final Queue<MouseWheelEvent> mouseWheelEvents2) {
+	public void processInput(final Queue<EventPair<KeyEvent, KeyEventType>> keyEvents,
+			final Queue<EventPair<MouseEvent, MouseEventType>> mouseEvents, final Queue<MouseWheelEvent> mouseWheelEvents2) {
 		for (final EventPair<MouseEvent, MouseEventType> e : mouseEvents) {
 			if (e.type != MouseEventType.CLICK) {
 				continue;
@@ -183,11 +208,12 @@ public class Test extends World {
 	int i = 0;
 
 	@Override
-	public void updateWorld(final float dt) {
+	public void update(final float dt) {
+		systemManager.broadcast(new UpdateMessage(dt));
 		if (i % 40 == 0) {
-			final PhysicsComponent e = createBall(new Vec2D(501, 0), 10);
+			// final PhysicsComponent e = createBall(new Vec2D(501, 0), 10);
 
-			addEntity(e);
+			// addEntity(e);
 		}
 		i++;
 	}
