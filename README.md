@@ -4,6 +4,7 @@ A 2D game library built for learning purposes.
 - [ ] More unit tests!!!!
 
 - [ ] Separate physics component into position, velocity, physics, etc.
+- [ ] Continuous collision detection
 - [x] Add logging(logging facade)
 - [x] Resource management
  - [x] images
@@ -13,7 +14,7 @@ A 2D game library built for learning purposes.
  - [ ] sound
  - [ ] animations
 - [ ] Add settings loading
-- [ ] ray casting
+- [x] ray casting
 - [ ] Add particle body type
 - [ ] Particle systems 
 - [ ] interpolation (http://www.gamedev.net/page/resources/_/technical/game-programming/enginuity-part-v-r2011) 
@@ -25,6 +26,5 @@ A 2D game library built for learning purposes.
  - [ ] shaders
  - [ ] sound
 - [ ] Rk4 integration
-
-Pathfinding
-Scripting?? (Or just data script in)
+- [ ]Pathfinding
+- [ ] Scripting? (Or just data scripting like loading enemy types, stats, etc.)
