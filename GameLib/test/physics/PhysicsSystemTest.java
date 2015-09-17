@@ -1,15 +1,15 @@
 package physics;
 
-import game.WorldMock;
-import game.entity.GameEntity;
-import game.messaging.CreateEntityMessage;
-import game.messaging.GameSystemManager;
-
 import java.awt.Rectangle;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import game.WorldMock;
+import game.entity.GameEntity;
+import game.messaging.CreateEntityMessage;
+import game.messaging.GameSystemManager;
+import math.Vec2D;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.RectShape;
 
@@ -32,10 +32,11 @@ public class PhysicsSystemTest {
 
 		final GameEntity entity = new GameEntity();
 
-		final PhysicsComponent e = new PhysicsComponent();
-		e.shape = new RectShape(0, 0, 1, 1);
+		final CollisionComponent e = new CollisionComponent();
+		e.setPos(new Vec2D(0.5f, 0.5f));
+		e.setShape((new RectShape(-0.5f, 0.5f, 0.5f, 0.5f)));
 		e.collisionFilter = new CollisionFilter(0, 0, 0);
-		e.setMass(1);
+ 		e.setMass(1);
 
 		entity.addComponent(e);
 
@@ -52,7 +53,7 @@ public class PhysicsSystemTest {
 
 		final GameEntity entity = new GameEntity();
 
-		final PhysicsComponent e = new PhysicsComponent();
+		final CollisionComponent e = new CollisionComponent();
 		e.collisionFilter = new CollisionFilter(0, 0, 0);
 		e.setMass(1);
 		e.setMaterial(Material.STEEL);

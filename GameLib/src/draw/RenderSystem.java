@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 import physics.PhysicsSystem;
 import physics.collision.shape.CircleShape;
 import physics.collision.shape.RectShape;
@@ -27,7 +27,7 @@ import physics.constraints.Constraint;
 
 public class RenderSystem extends GameSystem {
 
-	protected final List<PhysicsComponent> entities = new ArrayList<>();
+	protected final List<CollisionComponent> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
 	private final World world;
 	private int collisionChecksThisTick;
@@ -45,12 +45,12 @@ public class RenderSystem extends GameSystem {
 		camera.translate(g);
 		camera.clip(g);
 
-		for (final PhysicsComponent object : entities) {
-			if (object.shape instanceof RectShape) {
-				final int x = (int) ((RectShape) object.shape).getMin().x;
-				final int y = (int) ((RectShape) object.shape).getMin().y;
-				final int width = (int) (((RectShape) object.shape).getMax().x - ((RectShape) object.shape).getMin().x);
-				final int height = (int) (((RectShape) object.shape).getMax().y - ((RectShape) object.shape).getMin().y);
+		for (final CollisionComponent object : entities) {
+			if (object.getShape() instanceof RectShape) {
+				final int x = (int) (object.getPos().x + ((RectShape) object.getShape()).getMin().x);
+				final int y = (int) (object.getPos().y +  ((RectShape) object.getShape()).getMin().y);
+				final int width = (int) (((RectShape) object.getShape()).getMax().x - ((RectShape) object.getShape()).getMin().x);
+				final int height = (int) (((RectShape) object.getShape()).getMax().y - ((RectShape) object.getShape()).getMin().y);
 				if (!object.sleeping) {
 					g.setColor(new Color(50, 100, 200));
 				} else {
@@ -61,10 +61,10 @@ public class RenderSystem extends GameSystem {
 				g.setColor(Color.BLACK);
 				g.drawRect(-width / 2, -height / 2, width, height);
 				g.translate(-(x + width / 2), -(y + height / 2));
-			} else if (object.shape instanceof CircleShape) {
-				final int radius = (int) ((CircleShape) object.shape).getRadius();
-				final int x = (int) ((CircleShape) object.shape).center().x - radius;
-				final int y = (int) ((CircleShape) object.shape).center().y - radius;
+			} else if (object.getShape() instanceof CircleShape) {
+				final int radius = (int) ((CircleShape) object.getShape()).getRadius();
+				final int x = (int) (object.getPos().x - radius);
+				final int y = (int) (object.getPos().y - radius);
 				if (!object.sleeping) {
 					g.setColor(new Color(200, 100, 50));
 				} else {
@@ -120,7 +120,7 @@ public class RenderSystem extends GameSystem {
 	@Override
 	public void recieveMessage(final Message m) {
 		if (m instanceof CreateEntityMessage) {
-			entities.add((PhysicsComponent) ((CreateEntityMessage) m).entity.getComponent(PhysicsComponent.COMPONENT_ID));
+			entities.add((CollisionComponent) ((CreateEntityMessage) m).entity.getComponent(CollisionComponent.COMPONENT_ID));
 		} else if (m instanceof CreateConstraintMessage) {
 			constraints.add(((CreateConstraintMessage) m).constraint);
 		} else if (m instanceof RenderMessage) {

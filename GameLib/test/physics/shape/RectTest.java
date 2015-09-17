@@ -13,7 +13,12 @@ public class RectTest {
 
 	@Test
 	public void testCreation() {
-		new RectShape(new Vec2D(0, 0), new Vec2D(1, 1));
+		new RectShape(new Vec2D(-0.5f, -0.5f), new Vec2D(0.5f, 0.5f));
+	}
+	@Test(expected = IllegalArgumentException.class)
+	public void testFailedCreation0() {
+		// center must be (0,0)
+		new RectShape(new Vec2D(0,0), new Vec2D(1, 1));
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -32,22 +37,8 @@ public class RectTest {
 	}
 
 	@Test
-	public void testGetCenter() {
-		Assert.assertEquals(new Vec2D(.5f, .5f), new RectShape(new Vec2D(0, 0), new Vec2D(1, 1)).center());
-	}
-
-	@Test
 	public void testGetBoundingBox() {
-		Assert.assertEquals(new Rectangle2D.Float(0, 0, 1, 1), new RectShape(new Vec2D(0, 0), new Vec2D(1, 1)).getRect());
-	}
-
-	@Test
-	public void testMoveRelative() {
-		final RectShape s = new RectShape(new Vec2D(0, 0), new Vec2D(1, 1));
-		s.moveRelative(new Vec2D(1, 1));
-		Assert.assertEquals(new Vec2D(1.5f, 1.5f), s.center());
-		s.moveRelative(new Vec2D(-2, 0));
-		Assert.assertEquals(new Vec2D(-.5f, 1.5f), s.center());
+		Assert.assertEquals(new Rectangle2D.Float(-0.5f, -0.5f, 1, 1), new RectShape(new Vec2D(-0.5f, -0.5f), new Vec2D(0.5f, 0.5f)).getRect());
 	}
 
 }

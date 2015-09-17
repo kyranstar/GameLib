@@ -3,19 +3,20 @@ package physics.collision.handling;
 import java.awt.geom.Rectangle2D;
 
 import math.Vec2D;
+import physics.CollisionComponent;
 import physics.collision.shape.RectShape;
 
 class CollisionRectRect {
 
-	public static boolean isColliding(final RectShape a, final RectShape b) {
+	public static boolean isColliding(final CollisionComponent a, final CollisionComponent b) {
 		return collisionNormal(a, b) != null;
 	}
 
-	public static CManifold generateManifold(final RectShape a, final RectShape b, final CManifold m) {
+	public static CManifold generateManifold(final CManifold m) {
 
-		final Rectangle2D r = a.getRect().createIntersection(b.getRect());
+		final Rectangle2D r = m.a.getRect().createIntersection(m.b.getRect());
 
-		m.setNormal(collisionNormal(a, b));
+		m.setNormal(collisionNormal(m.a, m.b));
 		// penetration is the min resolving distance
 		m.setPenetration((float) Math.min(r.getWidth(), r.getHeight()));
 		return m;
@@ -28,11 +29,14 @@ class CollisionRectRect {
 	 * @param b
 	 * @return null if no collision
 	 */
-	private static Vec2D collisionNormal(final RectShape a, final RectShape b) {
-		final float w = 0.5f * (a.width() + b.width());
-		final float h = 0.5f * (a.height() + b.height());
-		final float dx = a.center().x - b.center().x;
-		final float dy = a.center().y - b.center().y;
+	private static Vec2D collisionNormal(final CollisionComponent a, final CollisionComponent b) {
+		RectShape s1 = (RectShape) a.getShape();
+		RectShape s2 = (RectShape) b.getShape();
+		
+		final float w = 0.5f * (s1.width() + s2.width());
+		final float h = 0.5f * (s1.height() + s2.height());
+		final float dx = a.getPos().x - b.getPos().x;
+		final float dy = a.getPos().y - b.getPos().y;
 
 		if (Math.abs(dx) <= w && Math.abs(dy) <= h) {
 			/* collision! */

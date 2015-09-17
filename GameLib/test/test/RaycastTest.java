@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 
-import math.AngleUtils;
+import math.MathUtils;
 import math.Vec2D;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import physics.Material;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 import physics.PhysicsSystem;
 import physics.collision.ray.Ray;
 import physics.collision.ray.RaycastDetector;
@@ -63,14 +63,15 @@ public class RaycastTest extends World {
 	}
 
 	private void createWorld() {
-		final PhysicsComponent part = new PhysicsComponent();
-		part.shape = new RectShape(new Vec2D(0, 900), new Vec2D(1000, 1000));
-		part.setMass(PhysicsComponent.INFINITE_MASS);
+		final CollisionComponent part = new CollisionComponent();
+		part.setPos(new Vec2D(0, 950));
+		part.setShape((new RectShape(new Vec2D(-500, -50), new Vec2D(500, 50))));
+		part.setMass(CollisionComponent.INFINITE_MASS);
 		part.setMaterial(Material.STEEL);
 		addEntity(part);
 	}
 
-	private void addEntity(final PhysicsComponent pc) {
+	private void addEntity(final CollisionComponent pc) {
 		final GameEntity e = new GameEntity();
 		e.addComponent(pc);
 		systemManager.broadcast(new CreateEntityMessage(e));
@@ -117,20 +118,22 @@ public class RaycastTest extends World {
 		}
 	}
 
-	private PhysicsComponent createRect(final Vec2D center, final float size) {
-		final PhysicsComponent ob = new PhysicsComponent();
+	private CollisionComponent createRect(final Vec2D center, final float size) {
+		final CollisionComponent ob = new CollisionComponent();
 		ob.setMaterial(Material.STEEL);
-		ob.shape = new RectShape(center.minus(new Vec2D(size / 2, size / 2)), center.plus(new Vec2D(size / 2, size / 2)));
+		ob.setPos(center);
+		ob.setShape((new RectShape(new Vec2D(-size / 2, -size / 2), new Vec2D(size / 2, size / 2))));
 		ob.setMass(size * size);
 		return ob;
 	}
 
-	private PhysicsComponent createBall(final Vec2D center, final float radius) {
-		final PhysicsComponent ob = new PhysicsComponent();
+	private CollisionComponent createBall(final Vec2D center, final float radius) {
+		final CollisionComponent ob = new CollisionComponent();
 
 		ob.setMaterial(Material.STEEL);
-		ob.shape = new CircleShape(center, radius);
-		ob.setMass(radius * radius * AngleUtils.PI);
+		ob.setPos(center);
+		ob.setShape((new CircleShape(radius)));
+		ob.setMass(radius * radius * MathUtils.PI);
 		return ob;
 	}
 
@@ -145,8 +148,9 @@ public class RaycastTest extends World {
 			Vec2D minPoint = null;
 			for (final GameEntity e : entities.getEntities()) {
 				final RaycastResult result = new RaycastResult();
-				if (RaycastDetector.raycast(r, RaycastDetector.INFINITE_LENGTH,
-						((PhysicsComponent) e.getComponent(PhysicsComponent.COMPONENT_ID)).shape, result)) {
+				CollisionComponent collisionComponent = (CollisionComponent) e.getComponent(CollisionComponent.COMPONENT_ID);
+				if (RaycastDetector.raycast(r, RaycastDetector.INFINITE_LENGTH, collisionComponent.getPos(),
+						collisionComponent.getShape(), result)) {
 					if (minDist > result.getDistance()) {
 						minDist = (float) result.getDistance();
 						minPoint = result.getPoint();

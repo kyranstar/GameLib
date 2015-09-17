@@ -2,6 +2,7 @@ package physics.collision.shape;
 
 import java.awt.geom.Rectangle2D;
 
+import math.MathUtils;
 import math.Vec2D;
 
 public class RectShape implements CShape, PolygonShape {
@@ -10,9 +11,9 @@ public class RectShape implements CShape, PolygonShape {
 	public static final int RIGHT_BOTTOM = 2;
 
 	// upper left
-	private Vec2D min;
+	private final Vec2D min;
 	// bottom right
-	private Vec2D max;
+	private final Vec2D max;
 	// lazy variable
 	private Rectangle2D rect;
 
@@ -20,6 +21,11 @@ public class RectShape implements CShape, PolygonShape {
 		if (min == null || max == null) {
 			throw new NullPointerException("Min cannot be null, was: " + min + ". Max cannot be null, was: " + max);
 		}
+		if(Math.abs((min.x + max.x) / 2 - 0) >= MathUtils.EPSILON || 
+				Math.abs((min.y + max.y) / 2 - 0) >= MathUtils.EPSILON){
+			throw new IllegalArgumentException("Center must be (0,0)");
+		}
+		
 
 		this.min = min;
 		this.max = max;
@@ -29,10 +35,6 @@ public class RectShape implements CShape, PolygonShape {
 		this(new Vec2D(x1, y1), new Vec2D(x2, y2));
 	}
 
-	@Override
-	public Vec2D center() {
-		return new Vec2D((getMax().x + getMin().x) / 2, (getMax().y + getMin().y) / 2);
-	}
 
 	@Override
 	public Rectangle2D getRect() {
@@ -50,14 +52,6 @@ public class RectShape implements CShape, PolygonShape {
 	public float height() {
 		return getMax().y - getMin().y;
 	}
-
-	@Override
-	public void moveRelative(final Vec2D v) {
-		min = getMin().plus(v);
-		max = getMax().plus(v);
-		rect = null;
-	}
-
 	public float area() {
 		final Vec2D area = getMax().minus(getMin());
 		return area.x * area.y;

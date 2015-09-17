@@ -1,46 +1,51 @@
 package physics.collision.handling;
 
 import math.Vec2D;
+import physics.CollisionComponent;
 import physics.collision.shape.CircleShape;
 import physics.collision.shape.RectShape;
 
 class CollisionRectCircle {
-	public static boolean isColliding(final RectShape a, final CircleShape b) {
-		final float circleDistance_x = Math.abs(b.center().x - (a.getMin().x + a.width() / 2));
-		final float circleDistance_y = Math.abs(b.center().y - (a.getMin().y + a.height() / 2));
+	public static boolean isColliding(final CollisionComponent a, final CollisionComponent b) {
+		RectShape s1 = (RectShape) a.getShape();
+		CircleShape s2 = (CircleShape) b.getShape();
+		
+		final float circleDistance_x = Math.abs(b.getPos().x - (a.getPos().x + s1.getMin().x + s1.width() / 2));
+		final float circleDistance_y = Math.abs(b.getPos().y - (a.getPos().y + s1.getMin().y + s1.height() / 2));
 
-		if (circleDistance_x > a.width() / 2 + b.getRadius()) {
+		if (circleDistance_x > s1.width() / 2 + s2.getRadius()) {
 			return false;
 		}
-		if (circleDistance_y > a.height() / 2 + b.getRadius()) {
+		if (circleDistance_y > s1.height() / 2 + s2.getRadius()) {
 			return false;
 		}
 
-		if (circleDistance_x <= a.width() / 2) {
+		if (circleDistance_x <= s1.width() / 2) {
 			return true;
 		}
-		if (circleDistance_y <= a.height() / 2) {
+		if (circleDistance_y <= s1.height() / 2) {
 			return true;
 		}
 
-		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - a.width() / 2, 2) + (int) Math.pow(circleDistance_y - a.height() / 2, 2);
+		final int cornerDistance_sq = (int) Math.pow(circleDistance_x - s1.width() / 2, 2) + (int) Math.pow(circleDistance_y - s1.height() / 2, 2);
 
-		return cornerDistance_sq <= (int) Math.pow(b.getRadius(), 2);
+		return cornerDistance_sq <= (int) Math.pow(s2.getRadius(), 2);
 
 	}
 
-	public static CManifold generateManifold(final RectShape a, final CircleShape b, final CManifold m) {
-		assert m.a.shape == a && m.b.shape == b;
+	public static CManifold generateManifold(final CManifold m) {
+		RectShape s1 = (RectShape) m.a.getShape();
+		CircleShape s2 = (CircleShape) m.b.getShape();
 
 		// Vector from A to B
-		final Vec2D n = b.center().minus(a.center());
+		final Vec2D n = m.b.getPos().minus(m.a.getPos());
 
 		// Closest point on A to center of B
 		Vec2D closest = n;
 
 		// Calculate half extents along each axis
-		final float x_extent = a.width() / 2f;
-		final float y_extent = a.height() / 2f;
+		final float x_extent = s1.width() / 2f;
+		final float y_extent = s1.height() / 2f;
 
 		// Clamp point to edges of the AABB
 		closest = new Vec2D(clamp(closest.x, -x_extent, x_extent), clamp(closest.y, -y_extent, y_extent));
@@ -63,7 +68,7 @@ class CollisionRectCircle {
 		}
 		// vector from closest to the center of the circle
 		final Vec2D normal = n.minus(closest);
-		final float r = b.getRadius();
+		final float r = s2.getRadius();
 		// Collision normal needs to be flipped to point outside if circle was
 		// inside the AABB
 		m.setNormal(inside ? normal.unitVector().multiply(-1) : normal.unitVector());

@@ -1,8 +1,8 @@
 package physics.constraints;
 
-import math.AngleUtils;
+import math.MathUtils;
 import math.Vec2D;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 
 public class AnglePointConstraint extends PointBodyJoint {
 
@@ -19,18 +19,18 @@ public class AnglePointConstraint extends PointBodyJoint {
 	 * @param tolerance
 	 *            the angle tolerance in both directions. 0 <= tolerance < Pi
 	 */
-	public AnglePointConstraint(final PhysicsComponent a, final Vec2D point, final float midAngle, final float tolerance) {
+	public AnglePointConstraint(final CollisionComponent a, final Vec2D point, final float midAngle, final float tolerance) {
 		super(a, point);
-		if (tolerance < 0 || tolerance >= AngleUtils.PI) {
+		if (tolerance < 0 || tolerance >= MathUtils.PI) {
 			throw new IllegalArgumentException("Tolerance must be >= 0 and < Pi");
 		}
-		minAngle = AngleUtils.normalize(midAngle - tolerance);
-		maxAngle = AngleUtils.normalize(midAngle + tolerance);
+		minAngle = MathUtils.normalize(midAngle - tolerance);
+		maxAngle = MathUtils.normalize(midAngle + tolerance);
 	}
 
 	@Override
 	public void update() {
-		final Vec2D aToB = getB().minus(getA().center());
+		final Vec2D aToB = getB().minus(getA().getPos());
 		// angle from A to B
 		final float angle = aToB.getTheta();
 
@@ -39,17 +39,17 @@ public class AnglePointConstraint extends PointBodyJoint {
 			return;
 		}
 		// if we are in that dumb spot where maxAngle < min Angle (directly to the left) we need extra checks
-		if (maxAngle < minAngle && (angle <= maxAngle && angle >= -AngleUtils.PI || angle >= minAngle && angle <= AngleUtils.PI)) {
+		if (maxAngle < minAngle && (angle <= maxAngle && angle >= -MathUtils.PI || angle >= minAngle && angle <= MathUtils.PI)) {
 			return;
 		}
 
 		final float distBtoA = aToB.length();
 
-		final float closestAngleBound = AngleUtils.angleDifference(angle, maxAngle) < AngleUtils.angleDifference(angle, minAngle) ? maxAngle
+		final float closestAngleBound = MathUtils.angleDifference(angle, maxAngle) < MathUtils.angleDifference(angle, minAngle) ? maxAngle
 				: minAngle;
 
 		// where we should be
-		final Vec2D solvedLocation = getA().center().plus(
+		final Vec2D solvedLocation = getA().getPos().plus(
 				new Vec2D((float) (Math.cos(closestAngleBound) * distBtoA), (float) (Math.sin(closestAngleBound) * distBtoA)));
 		final Vec2D correction = solvedLocation.minus(getB());
 

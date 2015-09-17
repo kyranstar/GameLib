@@ -1,7 +1,7 @@
 package physics.collision.handling;
 
 import math.Vec2D;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 
 /**
  * Holds data about a collision between two GameObjects
@@ -11,9 +11,9 @@ import physics.PhysicsComponent;
  */
 public class CManifold {
 	// object A
-	public PhysicsComponent a;
+	public CollisionComponent a;
 	// object B
-	public PhysicsComponent b;
+	public CollisionComponent b;
 	// penetration amount
 	private float penetration;
 	// collision normal
@@ -21,7 +21,7 @@ public class CManifold {
 
 	@Override
 	public String toString() {
-		return "CollisionManifold [a.shape=" + a.shape.getClass().getSimpleName() + ", b.shape=" + b.shape.getClass().getSimpleName()
+		return "CollisionManifold [a.shape=" + a.getShape().getClass().getSimpleName() + ", b.shape=" + b.getShape().getClass().getSimpleName()
 				+ ", penetration=" + getPenetration() + ", normal=" + getNormal() + "]";
 	}
 

@@ -41,7 +41,7 @@ public class PhysicsSystem extends GameSystem {
 	// the number of times to run collision detection and response per frame
 	private static final int COLLISION_ITERATIONS = 10;
 
-	protected final List<PhysicsComponent> entities = new ArrayList<>();
+	protected final List<CollisionComponent> entities = new ArrayList<>();
 	protected final List<Constraint> constraints = new ArrayList<>();
 	protected final Quadtree quadtree;
 
@@ -70,20 +70,20 @@ public class PhysicsSystem extends GameSystem {
 		}
 
 		// possible objects to collide with each object
-		final List<PhysicsComponent> collidableObjects = new ArrayList<>();
+		final List<CollisionComponent> collidableObjects = new ArrayList<>();
 		for (int i = 0; i < entities.size(); i++) {
-			final PhysicsComponent a = entities.get(i);
+			final CollisionComponent a = entities.get(i);
 
 			collidableObjects.clear();
 			quadtree.retrieve(collidableObjects, a);
 
-			if (!a.sleeping && a.getMass() != PhysicsComponent.INFINITE_MASS) {
+			if (!a.sleeping && a.getMass() != CollisionComponent.INFINITE_MASS) {
 				a.applyForce(gravityForce.divide(a.getInvMass()));
 				a.applyForce(a.getVelocity().multiply(-AIR_FRICTION * dt));
 			}
 
 			// check collisions
-			for (final PhysicsComponent b : collidableObjects) {
+			for (final CollisionComponent b : collidableObjects) {
 				if (b.checkedCollisionThisTick.contains(a) || a.checkedCollisionThisTick.contains(b)) {
 					// don't want to check collisions both ways
 					continue;
@@ -106,7 +106,7 @@ public class PhysicsSystem extends GameSystem {
 		for (final Constraint c : constraints) {
 			c.update();
 		}
-		for (final PhysicsComponent e : entities) {
+		for (final CollisionComponent e : entities) {
 			if (!e.sleeping) {
 				e.update(dt);
 			}
@@ -120,7 +120,7 @@ public class PhysicsSystem extends GameSystem {
 		systemManager.broadcast(new DebugMessage<Integer>(InfoType.COLLISION_SOLVES_THIS_TICK, collisionSolvesThisTick));
 	}
 
-	private void checkSleep(final PhysicsComponent a) {
+	private void checkSleep(final CollisionComponent a) {
 		if (a.getVelocity().x < SLEEP_THRESHOLD && a.getVelocity().x > -SLEEP_THRESHOLD //
 				&& a.getVelocity().y < SLEEP_THRESHOLD && a.getVelocity().y > -SLEEP_THRESHOLD) {
 			if (a.sleeping) {
@@ -160,11 +160,11 @@ public class PhysicsSystem extends GameSystem {
 
 	private void handleCreateEntity(final CreateEntityMessage message) {
 		// if it doesn't have a physics component
-		if (message.entity.getComponent(PhysicsComponent.COMPONENT_ID) == null) {
+		if (message.entity.getComponent(CollisionComponent.COMPONENT_ID) == null) {
 			return;
 		}
 
-		final PhysicsComponent e = (PhysicsComponent) message.entity.getComponent(PhysicsComponent.COMPONENT_ID);
+		final CollisionComponent e = (CollisionComponent) message.entity.getComponent(CollisionComponent.COMPONENT_ID);
 		if (!e.isFullyConstructed()) {
 			throw new IllegalArgumentException("Entity must be full constructed! Missing attributes: " + e.getMissingAttributes());
 		}

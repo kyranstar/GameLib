@@ -1,20 +1,20 @@
 package physics.constraints;
 
 import math.Vec2D;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;
 
 public class StringJoint extends Joint {
 	public float distance;
 
-	public StringJoint(final PhysicsComponent a, final PhysicsComponent b, final float distance) {
+	public StringJoint(final CollisionComponent a, final CollisionComponent b, final float distance) {
 		super(a, b);
 		this.distance = distance;
 	}
 
-	public StringJoint(final PhysicsComponent a, final PhysicsComponent b) {
-		this(a, b, a.center().minus(b.center()).length());
+	public StringJoint(final CollisionComponent a, final CollisionComponent b) {
+		this(a, b, a.getPos().minus(b.getPos()).length());
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class StringJoint extends Joint {
 		m.a = getA();
 		m.b = getB();
 
-		final Vec2D n = getA().center().minus(getB().center());
+		final Vec2D n = getA().getPos().minus(getB().getPos());
 
 		final float d = n.length();
 		if (d <= distance) {

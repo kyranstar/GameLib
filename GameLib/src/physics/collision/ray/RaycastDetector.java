@@ -25,12 +25,12 @@ public final class RaycastDetector {
 	 * @return boolean true if the ray intersects the circle
 	 * @since 2.0.0
 	 */
-	public static final boolean raycast(final Ray ray, final float maxLength, final CircleShape circle, final RaycastResult result) {
+	public static final boolean raycast(final Ray ray, final float maxLength, Vec2D center, final CircleShape circle, final RaycastResult result) {
 
 		// solve the problem algebraically
 		final Vec2D s = ray.getStart();
 		final Vec2D d = ray.getDirection();
-		final Vec2D ce = circle.center();
+		final Vec2D ce = center;
 		final float r = circle.getRadius();
 
 		// make sure the start of the ray is not contained in the circle
@@ -137,7 +137,7 @@ public final class RaycastDetector {
 	 * @return boolean true if the ray intersects the rectangle
 	 * @since 2.0.0
 	 */
-	public static final boolean raycast(final Ray ray, final float maxLength, final RectShape rect, final RaycastResult raycast) {
+	public static final boolean raycast(final Ray ray, final float maxLength, Vec2D center, final RectShape rect, final RaycastResult raycast) {
 
 		// r.org is origin of ray
 		final Vec2D rorg = ray.getStart();
@@ -148,10 +148,10 @@ public final class RaycastDetector {
 		final Vec2D dirfrac = new Vec2D(1.0f / (rdir.x == 0 ? Float.MIN_NORMAL : rdir.x), 1.0f / (rdir.y == 0 ? Float.MIN_NORMAL : rdir.y));
 
 		// distances
-		final float t1 = (rect.getVertex(RectShape.LEFT_TOP).x - rorg.x) * dirfrac.x;
-		final float t2 = (rect.getVertex(RectShape.RIGHT_BOTTOM).x - rorg.x) * dirfrac.x;
-		final float t3 = (rect.getVertex(RectShape.LEFT_TOP).y - rorg.y) * dirfrac.y;
-		final float t4 = (rect.getVertex(RectShape.RIGHT_BOTTOM).y - rorg.y) * dirfrac.y;
+		final float t1 = (rect.getVertex(RectShape.LEFT_TOP).x + center.x - rorg.x) * dirfrac.x;
+		final float t2 = (rect.getVertex(RectShape.RIGHT_BOTTOM).x + center.x - rorg.x) * dirfrac.x;
+		final float t3 = (rect.getVertex(RectShape.LEFT_TOP).y + center.y - rorg.y) * dirfrac.y;
+		final float t4 = (rect.getVertex(RectShape.RIGHT_BOTTOM).y + center.y - rorg.y) * dirfrac.y;
 
 		final float tmin = Math.max(Math.min(t1, t2), Math.min(t3, t4));
 		final float tmax = Math.min(Math.max(t1, t2), Math.max(t3, t4));
@@ -195,11 +195,11 @@ public final class RaycastDetector {
 		return result;
 	}
 
-	public static boolean raycast(final Ray ray, final float maxLength, final CShape shape, final RaycastResult result) {
+	public static boolean raycast(final Ray ray, final float maxLength, Vec2D center, final CShape shape, final RaycastResult result) {
 		if (shape instanceof CircleShape) {
-			return raycast(ray, maxLength, (CircleShape) shape, result);
+			return raycast(ray, maxLength, center, (CircleShape) shape, result);
 		} else if (shape instanceof RectShape) {
-			return raycast(ray, maxLength, (RectShape) shape, result);
+			return raycast(ray, maxLength, center, (RectShape) shape, result);
 		} else {
 			throw new UnsupportedOperationException("Shape must be circle or rect");
 		}

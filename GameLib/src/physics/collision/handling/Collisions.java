@@ -1,7 +1,7 @@
 package physics.collision.handling;
 
 import math.Vec2D;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 import physics.collision.shape.CShape;
 import physics.collision.shape.CircleShape;
 import physics.collision.shape.RectShape;
@@ -26,36 +26,36 @@ public final class Collisions {
 	 *            must be a RectObject or CircleObject
 	 * @return
 	 */
-	public static boolean isColliding(final PhysicsComponent a, final PhysicsComponent b) {
-		final CShape as = a.shape;
-		final CShape bs = b.shape;
+	public static boolean isColliding(final CollisionComponent a, final CollisionComponent b) {
+		final CShape as = a.getShape();
+		final CShape bs = b.getShape();
 		if (!a.collisionFilter.shouldCollide(b.collisionFilter) && !b.collisionFilter.shouldCollide(a.collisionFilter)) {
 			return false;
 		}
 
 		if (as instanceof RectShape && bs instanceof RectShape) {
-			return CollisionRectRect.isColliding((RectShape) as, (RectShape) bs);
+			return CollisionRectRect.isColliding(a, b);
 		}
 		if (as instanceof CircleShape && bs instanceof CircleShape) {
-			return CollisionCircleCircle.isColliding((CircleShape) as, (CircleShape) bs);
+			return CollisionCircleCircle.isColliding(a, b);
 		}
 		if (as instanceof RectShape && bs instanceof CircleShape) {
-			return CollisionRectCircle.isColliding((RectShape) as, (CircleShape) bs);
+			return CollisionRectCircle.isColliding(a, b);
 		}
 		if (as instanceof CircleShape && bs instanceof RectShape) {
-			return CollisionRectCircle.isColliding((RectShape) bs, (CircleShape) as);
+			return CollisionRectCircle.isColliding(b, a);
 		}
 
 		throw new UnsupportedOperationException();
 	}
 
-	public static CManifold fixCollision(final PhysicsComponent a, final PhysicsComponent b) {
+	public static CManifold fixCollision(final CollisionComponent a, final CollisionComponent b) {
 		final CManifold m = generateManifold(a, b);
 		fixCollision(m, true);
 		return m;
 	}
 
-	public static void fixCollision(final PhysicsComponent a, final PhysicsComponent b, final float restitution) {
+	public static void fixCollision(final CollisionComponent a, final CollisionComponent b, final float restitution) {
 		fixCollision(generateManifold(a, b), true, restitution);
 	}
 
@@ -68,8 +68,8 @@ public final class Collisions {
 	}
 
 	public static void fixCollision(final CManifold m, final boolean applyFriction, final float restitution) {
-		final PhysicsComponent a = m.a;
-		final PhysicsComponent b = m.b;
+		final CollisionComponent a = m.a;
+		final CollisionComponent b = m.b;
 		// Calculate relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
 
@@ -102,8 +102,8 @@ public final class Collisions {
 	}
 
 	private static void applyFriction(final CManifold m, final float normalMagnitude) {
-		final PhysicsComponent a = m.a;
-		final PhysicsComponent b = m.b;
+		final CollisionComponent a = m.a;
+		final CollisionComponent b = m.b;
 
 		// relative velocity
 		final Vec2D rv = b.getVelocity().minus(a.getVelocity());
@@ -136,23 +136,23 @@ public final class Collisions {
 	 * @param b
 	 * @return
 	 */
-	private static CManifold generateManifold(final PhysicsComponent a, final PhysicsComponent b) {
+	private static CManifold generateManifold(final CollisionComponent a, final CollisionComponent b) {
 		final CManifold m = new CManifold();
 		m.a = a;
 		m.b = b;
-		final CShape as = a.shape;
-		final CShape bs = b.shape;
+		final CShape as = a.getShape();
+		final CShape bs = b.getShape();
 
 		if (as instanceof RectShape && bs instanceof RectShape) {
-			return CollisionRectRect.generateManifold((RectShape) as, (RectShape) bs, m);
+			return CollisionRectRect.generateManifold(m);
 		} else if (as instanceof CircleShape && bs instanceof CircleShape) {
-			return CollisionCircleCircle.generateManifold((CircleShape) as, (CircleShape) bs, m);
+			return CollisionCircleCircle.generateManifold(m);
 		} else if (as instanceof RectShape && bs instanceof CircleShape) {
-			return CollisionRectCircle.generateManifold((RectShape) as, (CircleShape) bs, m);
+			return CollisionRectCircle.generateManifold(m);
 		} else if (as instanceof CircleShape && bs instanceof RectShape) {
 			m.b = a;
 			m.a = b;
-			return CollisionRectCircle.generateManifold((RectShape) bs, (CircleShape) as, m);
+			return CollisionRectCircle.generateManifold(m);
 		} else {
 			throw new UnsupportedOperationException();
 		}
@@ -164,8 +164,8 @@ public final class Collisions {
 	 * @param m
 	 */
 	private static void positionalCorrection(final CManifold m) {
-		final PhysicsComponent a = m.a;
-		final PhysicsComponent b = m.b;
+		final CollisionComponent a = m.a;
+		final CollisionComponent b = m.b;
 
 		// the amount to correct by
 		final float percent = .4f; // usually .2 to .8

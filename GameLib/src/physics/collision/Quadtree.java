@@ -7,14 +7,14 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 
 public class Quadtree {
 	private static final int MAX_OBJECTS = 10;
 	private static final int MAX_LEVELS = 10;
 
 	private final int level;
-	private final List<PhysicsComponent> objects;
+	private final List<CollisionComponent> objects;
 	private final Rectangle bounds;
 	private final Quadtree[] nodes;
 
@@ -24,7 +24,7 @@ public class Quadtree {
 
 	private Quadtree(final int pLevel, final Rectangle pBounds) {
 		level = pLevel;
-		objects = new ArrayList<PhysicsComponent>();
+		objects = new ArrayList<CollisionComponent>();
 		bounds = pBounds;
 		nodes = new Quadtree[4];
 	}
@@ -33,7 +33,7 @@ public class Quadtree {
 	 * Insert the object into the quadtree. If the node exceeds the capacity, it will split and add all objects to their
 	 * corresponding nodes.
 	 */
-	public void insert(final PhysicsComponent e) {
+	public void insert(final CollisionComponent e) {
 
 		if (nodes[0] != null) {
 			final int index = getIndex(e);
@@ -67,12 +67,12 @@ public class Quadtree {
 	/*
 	 * Populates returnObjects with all objects that could collide with the given object
 	 */
-	public void retrieve(final List<PhysicsComponent> returnObjects, final PhysicsComponent e) {
+	public void retrieve(final List<CollisionComponent> returnObjects, final CollisionComponent e) {
 		final int index = getIndex(e);
 		if (index != -1 && nodes[0] != null) {
 			nodes[index].retrieve(returnObjects, e);
 		}
-		for (final PhysicsComponent ge : objects) {
+		for (final CollisionComponent ge : objects) {
 			if (ge == e) {
 				continue;
 			}
@@ -109,8 +109,8 @@ public class Quadtree {
 	 * Determine which node the object belongs to. -1 means object cannot completely fit within a child node and is part
 	 * of the parent node
 	 */
-	private int getIndex(final PhysicsComponent e) {
-		final Rectangle2D pRect = e.shape.getRect();
+	private int getIndex(final CollisionComponent e) {
+		final Rectangle2D pRect = e.getRect();
 
 		int index = -1;
 		final double verticalMidpoint = bounds.getX() + bounds.getWidth() / 2;

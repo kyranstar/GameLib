@@ -1,20 +1,21 @@
 package physics.constraints;
 
+import math.MathUtils;
 import math.Vec2D;
-import physics.PhysicsComponent;
+import physics.CollisionComponent;
 import physics.collision.handling.CManifold;
 import physics.collision.handling.Collisions;
 
 public class DistanceJoint extends Joint {
 	public float distance;
 
-	public DistanceJoint(final PhysicsComponent a, final PhysicsComponent b, final float distance) {
+	public DistanceJoint(final CollisionComponent a, final CollisionComponent b, final float distance) {
 		super(a, b);
 		this.distance = distance;
 	}
 
-	public DistanceJoint(final PhysicsComponent a, final PhysicsComponent b) {
-		this(a, b, a.center().minus(b.center()).length());
+	public DistanceJoint(final CollisionComponent a, final CollisionComponent b) {
+		this(a, b, a.getPos().minus(b.getPos()).length());
 	}
 
 	@Override
@@ -23,16 +24,15 @@ public class DistanceJoint extends Joint {
 		m.a = getA();
 		m.b = getB();
 
-		final Vec2D n = getA().center().minus(getB().center());
+		final Vec2D n = getA().getPos().minus(getB().getPos());
 
-		final float d = n.length();
-		if (Math.abs(d - distance) < 10e-6) {
+		if (Math.abs(n.length() - distance) < MathUtils.EPSILON) {
 			// we don't need to do anything
 			return;
 		}
 
-		m.setNormal(d < distance ? n.divide(d).multiply(-1) : n.divide(d));
-		m.setPenetration(Math.abs(d - distance));
+		m.setNormal(n.length() < distance ? n.unitVector().multiply(-1) : n.unitVector());
+		m.setPenetration(Math.abs(n.length() - distance));
 
 		Collisions.fixCollision(m, false);
 	}

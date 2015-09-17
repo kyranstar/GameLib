@@ -2,6 +2,7 @@ package physics;
 
 import game.entity.GameComponent;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -12,12 +13,13 @@ import math.Vec2D;
 import physics.collision.CollisionFilter;
 import physics.collision.shape.CShape;
 
-public class PhysicsComponent implements GameComponent {
+public class CollisionComponent implements GameComponent {
 
 	public static final int COMPONENT_ID = 1;
 
 	/**
-	 * A constant representing infinite mass. If setMass(GameObject.INFINITE_MASS) is called, this object will not move.
+	 * A constant representing infinite mass. If
+	 * setMass(GameObject.INFINITE_MASS) is called, this object will not move.
 	 */
 	public static final float INFINITE_MASS = 0;
 
@@ -31,12 +33,15 @@ public class PhysicsComponent implements GameComponent {
 	private float invMass;
 	private Vec2D velocity = new Vec2D();
 
+	private Vec2D pos = new Vec2D();
+
 	private Material material;
 
-	public CShape shape;
+	private CShape shape;
 
 	// all entities that we've checked collisions with so far this tick
-	public final Set<PhysicsComponent> checkedCollisionThisTick = Collections.newSetFromMap(new IdentityHashMap<PhysicsComponent, Boolean>());
+	public final Set<CollisionComponent> checkedCollisionThisTick = Collections
+			.newSetFromMap(new IdentityHashMap<CollisionComponent, Boolean>());
 
 	public CollisionFilter collisionFilter = CollisionFilter.ALL_COLLISIONS;
 
@@ -75,12 +80,8 @@ public class PhysicsComponent implements GameComponent {
 		applyForce(force, Vec2D.ZERO);
 	}
 
-	public Vec2D center() {
-		return shape.center();
-	}
-
 	public void moveRelative(final Vec2D v) {
-		shape.moveRelative(v);
+		setPos((getPos().plus(v)));
 	}
 
 	public float getRestitution() {
@@ -118,7 +119,8 @@ public class PhysicsComponent implements GameComponent {
 	}
 
 	/**
-	 * A debug method that returns all missing attributes for this entity to work properly
+	 * A debug method that returns all missing attributes for this entity to
+	 * work properly
 	 *
 	 * @return a list of missing attributes
 	 */
@@ -127,7 +129,7 @@ public class PhysicsComponent implements GameComponent {
 		if (material == null) {
 			missingAttributes.add("Material");
 		}
-		if (shape == null) {
+		if (getShape() == null) {
 			missingAttributes.add("Shape");
 		}
 		if (collisionFilter == null) {
@@ -140,5 +142,27 @@ public class PhysicsComponent implements GameComponent {
 	@Override
 	public int getComponentId() {
 		return COMPONENT_ID;
+	}
+
+	public Rectangle2D getRect() {
+		Rectangle2D shape = this.getShape().getRect();
+		return new Rectangle2D.Float((float) (shape.getX() + getPos().x), (float) (shape.getY() + getPos().y),
+				(float) shape.getWidth(), (float) shape.getHeight());
+	}
+
+	public CShape getShape() {
+		return shape;
+	}
+
+	public Vec2D getPos() {
+		return pos;
+	}
+
+	public void setPos(Vec2D pos) {
+		this.pos = pos;
+	}
+
+	public void setShape(CShape shape) {
+		this.shape = shape;
 	}
 }
